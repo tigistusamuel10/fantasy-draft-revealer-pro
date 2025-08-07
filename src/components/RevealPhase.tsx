@@ -125,25 +125,26 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
           setIsCountingDown(false);
           setShowDramaText(false);
           
-          // Perform the reveal directly here
-          setScreenShake(true);
-          setTimeout(() => setScreenShake(false), 600);
+          // First scroll to the card position, THEN perform the reveal
+          scrollToCard(currentRevealIndex);
           
-          const newDraftOrder = draftOrder.map((p) => 
-            p.id === currentPick.id ? { ...p, revealed: true } : p
-          );
-          setDraftOrder(newDraftOrder);
-          
-          // Check if this was the #1 pick for fireworks
-          if (currentPick.position === 1) {
-            setShowFireworks(true);
-            setTimeout(() => setShowFireworks(false), 3000);
-          }
-          
-          // Auto-scroll to the revealed card after countdown
+          // Wait for scroll to complete before revealing
           setTimeout(() => {
-            scrollToCard(currentRevealIndex);
-          }, 1000); // Wait for reveal animation to complete
+            // Perform the reveal after scrolling
+            setScreenShake(true);
+            setTimeout(() => setScreenShake(false), 600);
+            
+            const newDraftOrder = draftOrder.map((p) => 
+              p.id === currentPick.id ? { ...p, revealed: true } : p
+            );
+            setDraftOrder(newDraftOrder);
+            
+            // Check if this was the #1 pick for fireworks
+            if (currentPick.position === 1) {
+              setShowFireworks(true);
+              setTimeout(() => setShowFireworks(false), 3000);
+            }
+          }, 800); // Wait for scroll animation to complete (smooth scroll takes ~600-800ms)
         }
       }, 1000);
     } else {
