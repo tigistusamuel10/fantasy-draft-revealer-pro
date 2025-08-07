@@ -12,6 +12,7 @@ export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'>
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
+
     return (
       <motion.button
         className={cn(

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDownIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { Button } from './ui/Button';
 import { DraftOrder } from '@/types';
+import { useAudio } from '@/hooks/useBackgroundMusic';
 
 interface RevealPhaseProps {
   draftOrder: DraftOrder[];
@@ -17,12 +18,16 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
   const [currentRevealIndex, setCurrentRevealIndex] = useState(-1);
   const [allRevealed, setAllRevealed] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
+  const [showEpicCelebration, setShowEpicCelebration] = useState(false);
   const [screenShake, setScreenShake] = useState(false);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdownValue, setCountdownValue] = useState(3);
   const [showDramaText, setShowDramaText] = useState(false);
   const [dramaText, setDramaText] = useState('');
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Get audio functions
+  const { playCountdownSound } = useAudio();
   
   // Memoize sorted draft order to prevent unnecessary re-calculations
   const sortedDraftOrder = useMemo(() => 
@@ -119,6 +124,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
       const countdownInterval = setInterval(() => {
         if (currentCount < countdownSequence.length) {
           setCountdownValue(countdownSequence[currentCount]);
+          playCountdownSound(); // Play countdown tick sound
           currentCount++;
         } else {
           clearInterval(countdownInterval);
@@ -139,12 +145,17 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
             );
             setDraftOrder(newDraftOrder);
             
-            // Check if this was the #1 pick for fireworks
+            // Check if this was the #1 pick for EPIC celebration
             if (currentPick.position === 1) {
               setShowFireworks(true);
-              setTimeout(() => setShowFireworks(false), 3000);
+              setShowEpicCelebration(true);
+              
+              setTimeout(() => {
+                setShowFireworks(false);
+                setShowEpicCelebration(false);
+              }, 5000); // Longer celebration for #1 pick
             }
-          }, 800); // Wait for scroll animation to complete (smooth scroll takes ~600-800ms)
+          }, 800);
         }
       }, 1000);
     } else {
@@ -157,13 +168,18 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
       );
       setDraftOrder(newDraftOrder);
       
-      // Check if this was the #1 pick for fireworks
+      // Check if this was the #1 pick for EPIC celebration  
       if (currentPick.position === 1) {
         setShowFireworks(true);
-        setTimeout(() => setShowFireworks(false), 3000);
+        setShowEpicCelebration(true);
+        
+        setTimeout(() => {
+          setShowFireworks(false);
+          setShowEpicCelebration(false);
+        }, 5000); // Longer celebration for #1 pick
       }
     }
-  }, [currentRevealIndex, sortedDraftOrder, draftOrder, setDraftOrder, scrollToCard]);
+  }, [currentRevealIndex, sortedDraftOrder, draftOrder, setDraftOrder, scrollToCard, playCountdownSound]);
 
 
   const nextReveal = useCallback(() => {
@@ -386,6 +402,166 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
               </div>
               </motion.div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* EPIC #1 PICK CELEBRATION OVERLAY */}
+      <AnimatePresence>
+        {showEpicCelebration && (
+          <motion.div
+            className="fixed inset-0 z-[80] pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Background overlay with pulsing colors */}
+            <motion.div 
+              className="absolute inset-0"
+              animate={{
+                backgroundColor: [
+                  'rgba(0,0,0,0.8)',
+                  'rgba(255,215,0,0.1)',
+                  'rgba(255,69,0,0.1)',
+                  'rgba(0,255,0,0.1)',
+                  'rgba(0,0,0,0.8)'
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+            />
+            
+            {/* Fullscreen fireworks burst */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(30)].map((_, i) => (
+                <motion.div
+                  key={`epic-${i}`}
+                  className="absolute w-4 h-4 rounded-full"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    background: `hsl(${(i * 12) % 360}, 100%, ${50 + Math.random() * 30}%)`,
+                    boxShadow: '0 0 15px currentColor'
+                  }}
+                  animate={{
+                    x: [0, (Math.cos(i * Math.PI / 15) * (200 + Math.random() * 300))],
+                    y: [0, (Math.sin(i * Math.PI / 15) * (200 + Math.random() * 300))],
+                    opacity: [1, 0.8, 0.6, 0],
+                    scale: [0, 2, 1.5, 0],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatDelay: 0.1,
+                    delay: (i * 0.05),
+                    ease: "easeOut"
+                  }}
+                />
+              ))}
+              
+              {/* Confetti rain */}
+              {[...Array(50)].map((_, i) => (
+                <motion.div
+                  key={`confetti-${i}`}
+                  className="absolute w-2 h-8 opacity-80"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: '-10%',
+                    background: `linear-gradient(45deg, hsl(${Math.random() * 360}, 80%, 60%), hsl(${Math.random() * 360}, 80%, 60%))`,
+                    transform: `rotate(${Math.random() * 360}deg)`
+                  }}
+                  animate={{
+                    y: ['0vh', '120vh'],
+                    rotate: [0, 360 + Math.random() * 360],
+                    opacity: [0.8, 0.6, 0]
+                  }}
+                  transition={{
+                    duration: 4 + Math.random() * 3,
+                    repeat: Infinity,
+                    delay: Math.random() * 5,
+                    ease: 'linear'
+                  }}
+                />
+              ))}
+            </div>
+            
+            {/* Epic celebration text */}
+            <div className="flex items-center justify-center min-h-screen p-4">
+              <motion.div
+                className="text-center"
+                initial={{ scale: 0, rotateY: -180 }}
+                animate={{ scale: 1, rotateY: 0 }}
+                transition={{ duration: 1, type: "spring", bounce: 0.4, delay: 0.5 }}
+              >
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1.1, 1.2, 1],
+                    rotateZ: [0, -5, 5, -3, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <h1 className="text-6xl md:text-9xl font-black mb-6">
+                    <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 bg-clip-text text-transparent animate-pulse">
+                      🎉 #1 PICK! 🎉
+                    </span>
+                  </h1>
+                </motion.div>
+                
+                <motion.div
+                  animate={{
+                    opacity: [0.7, 1, 0.7],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <div className="text-2xl md:text-4xl font-bold text-white mb-4">
+                    🏆 FIRST OVERALL SELECTION! 🏆
+                  </div>
+                  <div className="text-xl md:text-2xl text-yellow-400 uppercase tracking-widest font-black">
+                    FANTASY LEGEND SECURED!
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+            
+            {/* Floating trophy emojis */}
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={`trophy-${i}`}
+                className="absolute text-6xl"
+                style={{
+                  left: `${10 + Math.random() * 80}%`,
+                  top: `${10 + Math.random() * 80}%`,
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  x: [0, Math.random() * 20 - 10, 0],
+                  rotate: [0, Math.random() * 30 - 15, 0],
+                  opacity: [0.6, 1, 0.6],
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 3,
+                  ease: "easeInOut"
+                }}
+              >
+                {Math.random() > 0.5 ? '🏆' : '🎊'}
+              </motion.div>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
@@ -711,65 +887,169 @@ function StandardHeader({
   return (
     <div className="py-6 min-h-[240px] flex flex-col">
       <div className="max-w-6xl mx-auto flex-1">
-          {/* Top Row - Title and Live Banner */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-6">
-            {/* Left: Title */}
-            <div className="flex items-center gap-4">
-              <motion.div 
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="p-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
-              >
-                <TrophyIcon className="h-6 w-6 text-black" />
-              </motion.div>
+          {/* Modern Title Card */}
+          <div className="mb-6">
+            <motion.div 
+              className="relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Animated background glow */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-orange-500/10 to-red-500/10 rounded-2xl blur-xl"
+                animate={{
+                  scale: [1, 1.05, 1],
+                  opacity: [0.5, 0.8, 0.5]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
               
-              <div>
-                <h1 className="text-2xl lg:text-4xl font-black leading-tight">
-                  <span className="bg-gradient-to-r from-green-400 via-yellow-400 to-yellow-500 bg-clip-text text-transparent">
-                    DRAFT DAY WAR ROOM
-                  </span>
-                </h1>
-                <motion.div 
-                  className="mt-2 flex items-center gap-2"
-                  animate={{ 
-                    backgroundPosition: ['0%', '100%', '0%']
-                  }}
-                  transition={{ 
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'linear'
-                  }}
-                >
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-full px-4 py-2 border border-yellow-500/30">
-                    <span className="text-yellow-400 text-lg">🏈</span>
-                    <span className="text-sm font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 bg-clip-text text-transparent uppercase tracking-wider">
-                      Fantasy Football 2025
-                    </span>
+              <div className="relative z-10">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                  {/* Left: Enhanced Title */}
+                  <div className="flex items-center gap-4">
                     <motion.div 
-                      className="w-2 h-2 bg-yellow-400 rounded-full"
-                      animate={{ 
-                        opacity: [1, 0.3, 1],
-                        scale: [1, 0.8, 1]
-                      }}
-                      transition={{ 
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: 'easeInOut'
-                      }}
-                    />
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="p-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
+                    >
+                      <TrophyIcon className="h-6 w-6 text-black" />
+                    </motion.div>
+                    
+                    <div className="space-y-2">
+                      <motion.h1
+                        className="text-2xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-yellow-200 to-slate-100 tracking-wide"
+                        animate={{
+                          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                          textShadow: [
+                            "0 0 20px rgba(251, 191, 36, 0.3)",
+                            "0 0 30px rgba(251, 191, 36, 0.5)",
+                            "0 0 20px rgba(251, 191, 36, 0.3)"
+                          ]
+                        }}
+                        transition={{ 
+                          duration: 3, 
+                          repeat: Infinity, 
+                          ease: "easeInOut"
+                        }}
+                        style={{
+                          backgroundSize: "200% 100%"
+                        }}
+                      >
+                        DRAFT DAY WAR ROOM
+                      </motion.h1>
+                      
+                      {/* Animated underline */}
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1.2, delay: 0.3 }}
+                        className="h-0.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full"
+                      />
+                      
+                      {/* Subtitle with dots */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.6 }}
+                        className="flex items-center gap-2 text-slate-200"
+                      >
+                        {[0, 1].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-1 h-1 bg-yellow-400 rounded-full"
+                            animate={{
+                              scale: [1, 1.3, 1],
+                              opacity: [0.4, 1, 0.4]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              delay: i * 0.2
+                            }}
+                          />
+                        ))}
+                        
+                        <motion.span
+                          className="text-sm md:text-base font-semibold tracking-wider uppercase"
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: 0.8 }}
+                        >
+                          Fantasy Football 2025
+                        </motion.span>
+                        
+                        {[0, 1].map((i) => (
+                          <motion.div
+                            key={i + 2}
+                            className="w-1 h-1 bg-yellow-400 rounded-full"
+                            animate={{
+                              scale: [1, 1.3, 1],
+                              opacity: [0.4, 1, 0.4]
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              delay: (i * 0.2) + 0.8
+                            }}
+                          />
+                        ))}
+                      </motion.div>
+                    </div>
                   </div>
-                </motion.div>
-              </div>
-            </div>
 
-            {/* Right: Live Banner */}
-            <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white px-4 py-2 rounded-full shadow-lg">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                <span className="text-sm font-bold tracking-wide">LIVE DRAFT COVERAGE</span>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  {/* Right: Enhanced Live Banner */}
+                  <motion.div 
+                    className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white px-4 py-2 rounded-full shadow-lg"
+                    animate={{
+                      boxShadow: [
+                        "0 4px 20px rgba(239, 68, 68, 0.3)",
+                        "0 8px 25px rgba(239, 68, 68, 0.5)",
+                        "0 4px 20px rgba(239, 68, 68, 0.3)"
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <motion.div 
+                        className="w-2 h-2 bg-white rounded-full"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                      <span className="text-sm font-bold tracking-wide">LIVE DRAFT COVERAGE</span>
+                      <motion.div 
+                        className="w-2 h-2 bg-white rounded-full"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
+                      />
+                    </div>
+                  </motion.div>
+                </div>
+                
+                {/* Decorative elements */}
+                <motion.div
+                  className="absolute top-2 right-2 w-1.5 h-1.5 bg-yellow-400 rounded-full"
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+                />
+                <motion.div
+                  className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-orange-500 rounded-full"
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 1.2 }}
+                />
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Start Button Section */}
@@ -932,25 +1212,80 @@ function StandardHeader({
 function FireworksEffect() {
   return (
     <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-      {[...Array(8)].map((_, i) => (
+      {/* Multiple layers of fireworks for #1 pick */}
+      {/* Main burst */}
+      {[...Array(12)].map((_, i) => (
         <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+          key={`main-${i}`}
+          className="absolute w-3 h-3 rounded-full"
           style={{
             left: '50%',
             top: '50%',
+            background: `hsl(${(i * 30) % 360}, 100%, 60%)`,
+            boxShadow: '0 0 10px currentColor'
           }}
           animate={{
-            x: [0, (Math.cos(i * Math.PI / 4) * 60)],
-            y: [0, (Math.sin(i * Math.PI / 4) * 60)],
-            opacity: [1, 0],
-            scale: [1, 0],
+            x: [0, (Math.cos(i * Math.PI / 6) * 80)],
+            y: [0, (Math.sin(i * Math.PI / 6) * 80)],
+            opacity: [1, 0.8, 0],
+            scale: [0.5, 1.5, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            repeatDelay: 0.3,
+            delay: i * 0.1,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+      
+      {/* Secondary burst */}
+      {[...Array(16)].map((_, i) => (
+        <motion.div
+          key={`secondary-${i}`}
+          className="absolute w-2 h-2 rounded-full bg-yellow-300"
+          style={{
+            left: '50%',
+            top: '50%',
+            boxShadow: '0 0 8px #fbbf24'
+          }}
+          animate={{
+            x: [0, (Math.cos(i * Math.PI / 8) * 100)],
+            y: [0, (Math.sin(i * Math.PI / 8) * 100)],
+            opacity: [0.8, 1, 0],
+            scale: [1, 1.2, 0],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            repeatDelay: 0.2,
+            delay: 0.5 + i * 0.08,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+      
+      {/* Sparkle effects */}
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={`sparkle-${i}`}
+          className="absolute w-1 h-1 bg-white rounded-full"
+          style={{
+            left: `${30 + Math.random() * 40}%`,
+            top: `${20 + Math.random() * 60}%`,
+            boxShadow: '0 0 6px #ffffff'
+          }}
+          animate={{
+            opacity: [0, 1, 0],
+            scale: [0, 1, 0],
+            rotate: [0, 360]
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            repeatDelay: 0.5,
-            delay: i * 0.1,
+            delay: Math.random() * 2,
+            repeatDelay: Math.random() * 3
           }}
         />
       ))}

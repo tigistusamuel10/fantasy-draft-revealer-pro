@@ -77,84 +77,153 @@ export function SetupPhase({ onStartReveal }: SetupPhaseProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header - Match RevealPhase styling */}
+      {/* Modern Header Card */}
       <motion.div 
-        className="text-center mb-12 backdrop-blur-xl bg-slate-900/50 rounded-3xl p-8 border border-yellow-500/20 shadow-2xl"
+        className="text-center mb-12 relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8 }}
       >
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <motion.div 
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="p-3 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
-          >
-            <TrophyIcon className="h-8 w-8 text-black" />
-          </motion.div>
-          
-          <div>
-            <motion.h1 
-              className="text-4xl md:text-6xl font-black leading-tight"
+        {/* Animated background glow */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-orange-500/10 to-red-500/10 rounded-2xl blur-xl"
+          animate={{
+            scale: [1, 1.05, 1],
+            opacity: [0.5, 0.8, 0.5]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <div className="relative z-10">
+          {/* Icon row */}
+          <div className="flex items-center justify-center gap-6 mb-6">
+            <motion.div 
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="p-3 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
+            >
+              <TrophyIcon className="h-8 w-8 text-black" />
+            </motion.div>
+            
+            <motion.div 
               animate={{ 
-                backgroundPosition: ['0%', '100%', '0%']
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1]
               }}
               transition={{ 
                 duration: 3,
                 repeat: Infinity,
-                ease: 'linear'
+                ease: 'easeInOut'
               }}
+              className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl shadow-xl"
             >
-              <span className="bg-gradient-to-r from-green-400 via-yellow-400 to-yellow-500 bg-clip-text text-transparent">
-                DRAFT DAY WAR ROOM
-              </span>
-            </motion.h1>
-            <motion.div 
-              className="mt-2 flex items-center justify-center gap-2"
-              animate={{ 
-                backgroundPosition: ['0%', '100%', '0%']
-              }}
-              transition={{ 
-                duration: 4,
-                repeat: Infinity,
-                ease: 'linear'
-              }}
-            >
-              <div className="flex items-center gap-2 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-full px-4 py-2 border border-yellow-500/30">
-                <span className="text-yellow-400 text-lg">🏈</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 bg-clip-text text-transparent uppercase tracking-wider">
-                  Fantasy Football 2025
-                </span>
-                <motion.div 
-                  className="w-2 h-2 bg-yellow-400 rounded-full"
-                  animate={{ 
-                    opacity: [1, 0.3, 1],
-                    scale: [1, 0.8, 1]
-                  }}
-                  transition={{ 
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut'
-                  }}
-                />
-              </div>
+              <SparklesIcon className="h-8 w-8 text-white" />
             </motion.div>
           </div>
           
-          <motion.div 
-            animate={{ 
-              rotate: [0, 10, -10, 0],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ 
-              duration: 3,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
-            className="p-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl shadow-xl"
-          >
-            <SparklesIcon className="h-8 w-8 text-white" />
+          {/* Enhanced War Room Title */}
+          <motion.div className="space-y-4 mb-6">
+            <motion.h1
+              className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-yellow-200 to-slate-100 tracking-wide"
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                textShadow: [
+                  "0 0 20px rgba(251, 191, 36, 0.3)",
+                  "0 0 30px rgba(251, 191, 36, 0.5)",
+                  "0 0 20px rgba(251, 191, 36, 0.3)"
+                ]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut"
+              }}
+              style={{
+                backgroundSize: "200% 100%"
+              }}
+            >
+              DRAFT DAY WAR ROOM
+            </motion.h1>
+            
+            {/* Animated underline */}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "60%" }}
+              transition={{ duration: 1.2, delay: 0.5 }}
+              className="h-0.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 mx-auto rounded-full"
+            />
+            
+            {/* Subtitle with dots */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex items-center justify-center gap-3 text-slate-200"
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-1.5 h-1.5 bg-yellow-400 rounded-full"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.4, 1, 0.4]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: i * 0.2
+                  }}
+                />
+              ))}
+              
+              <motion.span
+                className="text-lg md:text-xl font-semibold tracking-wider uppercase"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+              >
+                Fantasy Football 2025
+              </motion.span>
+              
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i + 3}
+                  className="w-1.5 h-1.5 bg-yellow-400 rounded-full"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.4, 1, 0.4]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: (i * 0.2) + 0.8
+                  }}
+                />
+              ))}
+            </motion.div>
           </motion.div>
+          
+          {/* Decorative elements */}
+          <motion.div
+            className="absolute top-4 right-4 w-2 h-2 bg-yellow-400 rounded-full"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          />
+          <motion.div
+            className="absolute bottom-4 left-4 w-2 h-2 bg-orange-500 rounded-full"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
+          />
         </div>
         
         {/* Live Setup Banner */}
@@ -233,34 +302,128 @@ export function SetupPhase({ onStartReveal }: SetupPhaseProps) {
           ))}
         </div>
 
-        {/* Start Button */}
+        {/* Enhanced Start Button */}
         <motion.div 
           className="text-center"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 1 }}
         >
-          <Button
+          <motion.button
             onClick={handleSubmit}
-            size="xl"
-            variant="primary"
-            className="text-2xl font-bold px-12 py-6 relative overflow-hidden group"
+            className="group relative px-16 py-6 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold text-xl rounded-xl shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 overflow-hidden"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
+            {/* Animated background layers */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
+            
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-500/20 to-red-500/20"
               animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                opacity: [0.3, 0.6, 0.3]
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
                 ease: 'linear'
               }}
+              style={{
+                backgroundSize: "200% 100%"
+              }}
             />
-            <span className="relative z-10 flex items-center gap-3">
-              🏈 BEGIN DRAFT REVEAL 🏈
-            </span>
-          </Button>
+            
+            {/* Button content */}
+            <div className="relative z-10 flex items-center justify-center gap-4">
+              {/* Animated dots before */}
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-2 h-2 bg-white rounded-full"
+                    animate={{
+                      scale: [1, 1.4, 1],
+                      opacity: [0.6, 1, 0.6]
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      delay: i * 0.2
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Main text with typewriter-style reveal */}
+              <motion.span
+                className="font-black text-xl md:text-2xl tracking-wider uppercase flex items-center gap-2"
+                initial={{ opacity: 0.8 }}
+                animate={{ 
+                  opacity: [0.8, 1, 0.8],
+                  textShadow: [
+                    "0 0 10px rgba(255, 255, 255, 0.3)",
+                    "0 0 20px rgba(255, 255, 255, 0.5)",
+                    "0 0 10px rgba(255, 255, 255, 0.3)"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <motion.span
+                  animate={{ rotate: [0, 15, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  🏈
+                </motion.span>
+                BEGIN DRAFT REVEAL
+                <motion.span
+                  animate={{ rotate: [0, -15, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.1 }}
+                >
+                  🏈
+                </motion.span>
+              </motion.span>
+              
+              {/* Animated dots after */}
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i + 3}
+                    className="w-2 h-2 bg-white rounded-full"
+                    animate={{
+                      scale: [1, 1.4, 1],
+                      opacity: [0.6, 1, 0.6]
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      delay: (i * 0.2) + 0.6
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* Shine effect */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+            />
+            
+            {/* Pulse effect on hover */}
+            <motion.div
+              className="absolute inset-0 bg-white/10 rounded-xl opacity-0 group-hover:opacity-100"
+              animate={{
+                scale: [1, 1.02, 1]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>
