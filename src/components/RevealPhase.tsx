@@ -66,7 +66,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentRevealIndex, allRevealed, isCountingDown, sortedDraftOrder]);
+  }, [currentRevealIndex, allRevealed, isCountingDown, sortedDraftOrder]); // Dependencies are correct as these are primitive values
 
   const startReveal = () => {
     setCurrentRevealIndex(0);
@@ -136,7 +136,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
     }
   };
 
-  const startDramaticReveal = (pick: any) => {
+  const startDramaticReveal = (pick: DraftOrder) => {
     // Scroll to top to ensure countdown is fully visible
     window.scrollTo({
       top: 0,
@@ -181,7 +181,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
     }, 1000);
   };
 
-  const performReveal = (pick: any) => {
+  const performReveal = (pick: DraftOrder) => {
     // Add screen shake for dramatic effect
     setScreenShake(true);
     setTimeout(() => setScreenShake(false), 600);

@@ -11,11 +11,9 @@ type Phase = 'setup' | 'reveal' | 'results';
 
 export default function Home() {
   const [currentPhase, setCurrentPhase] = useState<Phase>('setup');
-  const [members, setMembers] = useState<Member[]>([]);
   const [draftOrder, setDraftOrder] = useState<DraftOrder[]>([]);
 
   const handleStartReveal = (memberData: Member[]) => {
-    setMembers(memberData);
     // Fisher-Yates shuffle for true randomization with crypto random seeding
     const shuffled = [...memberData];
     
@@ -51,7 +49,6 @@ export default function Home() {
 
   const handleRestart = () => {
     setCurrentPhase('setup');
-    setMembers([]);
     setDraftOrder([]);
   };
 

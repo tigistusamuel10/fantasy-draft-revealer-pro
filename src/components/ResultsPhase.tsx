@@ -149,7 +149,7 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
           animate={{ opacity: [0.8, 1, 0.8] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
-          The destiny has been revealed! Here's your official fantasy football draft order.
+          The destiny has been revealed! Here&apos;s your official fantasy football draft order.
         </motion.p>
       </motion.div>
 
@@ -212,14 +212,14 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
                     
                     <div className="bg-white/5 rounded-lg p-3 md:col-span-2">
                       <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Team Motto</div>
-                      <div className="text-sm text-slate-300 italic">"{pick.motto}"</div>
+                      <div className="text-sm text-slate-300 italic">&quot;{pick.motto}&quot;</div>
                     </div>
                   </div>
 
                   {/* Prediction */}
                   <div className="mt-4 bg-gradient-to-r from-green-500/10 to-yellow-500/10 rounded-lg p-3 border border-green-500/20">
                     <div className="text-xs text-green-300 uppercase tracking-wide mb-1">Season Prediction</div>
-                    <div className="text-sm text-green-100 font-medium">"{pick.prediction}"</div>
+                    <div className="text-sm text-green-100 font-medium">&quot;{pick.prediction}&quot;</div>
                   </div>
                 </div>
               </div>
@@ -266,7 +266,7 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
           <h3 className="text-lg font-semibold text-green-200 mb-3">🧠 Draft Day Tips</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-100">
             <div>• Research player injury reports before drafting</div>
-            <div>• Don't reach for your favorite team's players</div>
+            <div>• Don&apos;t reach for your favorite team&apos;s players</div>
             <div>• Have backup plans for every position</div>
             <div>• Pay attention to bye weeks when drafting</div>
           </div>
