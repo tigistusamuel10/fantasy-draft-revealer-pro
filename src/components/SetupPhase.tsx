@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrophyIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { MemberCard } from './MemberCard';
-import { Button } from './ui/Button';
 import { Member, LeagueSize, DraftStrategy } from '@/types';
 
 interface SetupPhaseProps {

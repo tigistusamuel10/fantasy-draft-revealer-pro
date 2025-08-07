@@ -61,7 +61,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
         countdownAudioRef.current = null;
       }
     };
-  }, []);
+  }, [volume]);
 
   // Update volume when it changes
   useEffect(() => {
@@ -146,7 +146,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
       try {
         countdownAudioRef.current.currentTime = 0; // Reset to start
         countdownAudioRef.current.play().catch(() => {});
-      } catch (error) {
+      } catch {
         // Ignore audio play errors
       }
     }
