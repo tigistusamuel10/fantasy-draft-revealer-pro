@@ -17,7 +17,6 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
   const [currentRevealIndex, setCurrentRevealIndex] = useState(-1);
   const [allRevealed, setAllRevealed] = useState(false);
   const [showFireworks, setShowFireworks] = useState(false);
-  const [isRevealing, setIsRevealing] = useState(false);
   const [screenShake, setScreenShake] = useState(false);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdownValue, setCountdownValue] = useState(3);
@@ -31,7 +30,196 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
     [draftOrder]
   );
 
-  // Keyboard shortcuts
+  const startReveal = () => {
+    setCurrentRevealIndex(0);
+    // Scroll to first card after a brief delay to ensure DOM is ready
+    setTimeout(() => scrollToCard(0), 200);
+  };
+
+  // Memoized scroll function to prevent recreation on every render
+  const scrollToCard = useCallback((index: number) => {
+    // Wait a moment for DOM to update after any state changes
+    setTimeout(() => {
+      const cardElement = cardRefs.current[index];
+      if (cardElement) {
+        // Get the card's position relative to the document
+        const cardRect = cardElement.getBoundingClientRect();
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Calculate the target scroll position accounting for fixed header height
+        const headerHeight = 360;
+        const targetScrollY = currentScrollY + cardRect.top - headerHeight;
+        
+        // Scroll to the calculated position smoothly
+        window.scrollTo({
+          top: Math.max(0, targetScrollY),
+          behavior: 'smooth'
+        });
+        
+        // Scroll animation completes after 600ms
+        // No need to track revealing state anymore
+      } else {
+        // Simplified retry logic - single retry only
+        setTimeout(() => {
+          const retryCardElement = cardRefs.current[index];
+          if (retryCardElement) {
+            const cardRect = retryCardElement.getBoundingClientRect();
+            const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+            const headerHeight = 360;
+            const targetScrollY = currentScrollY + cardRect.top - headerHeight;
+            
+            window.scrollTo({
+              top: Math.max(0, targetScrollY),
+              behavior: 'smooth'
+            });
+            
+            // Scroll completed successfully
+          } else {
+            // Fallback if card element not found
+          }
+        }, 300);
+      }
+    }, 150);
+  }, []);
+
+  const revealCurrentCard = useCallback(() => {
+    if (currentRevealIndex < 0 || currentRevealIndex >= sortedDraftOrder.length) return;
+    
+    const currentPick = sortedDraftOrder[currentRevealIndex];
+    
+    // Special suspense for top 3 picks
+    if (currentPick.position <= 3) {
+      // Inline the dramatic reveal logic to avoid circular dependency
+      // Scroll to top to ensure countdown is fully visible
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Small delay to let scroll complete before starting countdown
+      setTimeout(() => {
+        setIsCountingDown(true);
+        setCountdownValue(3);
+        
+        // Set dramatic text based on position
+        const dramaTexts = {
+          3: "🥉 THIRD OVERALL PICK",
+          2: "🥈 SECOND OVERALL PICK", 
+          1: "🏆 FIRST OVERALL PICK! 🏆"
+        };
+        
+        setDramaText(dramaTexts[currentPick.position as keyof typeof dramaTexts] || "");
+        setShowDramaText(true);
+      }, 300); // Wait for scroll to complete
+
+      // Countdown sequence
+      const countdownSequence = [3, 2, 1];
+      let currentCount = 0;
+      
+      const countdownInterval = setInterval(() => {
+        if (currentCount < countdownSequence.length) {
+          setCountdownValue(countdownSequence[currentCount]);
+          currentCount++;
+        } else {
+          clearInterval(countdownInterval);
+          setIsCountingDown(false);
+          setShowDramaText(false);
+          
+          // Perform the reveal directly here
+          setScreenShake(true);
+          setTimeout(() => setScreenShake(false), 600);
+          
+          const newDraftOrder = draftOrder.map((p) => 
+            p.id === currentPick.id ? { ...p, revealed: true } : p
+          );
+          setDraftOrder(newDraftOrder);
+          
+          // Check if this was the #1 pick for fireworks
+          if (currentPick.position === 1) {
+            setShowFireworks(true);
+            setTimeout(() => setShowFireworks(false), 3000);
+          }
+          
+          // Auto-scroll to the revealed card after countdown
+          setTimeout(() => {
+            scrollToCard(currentRevealIndex);
+          }, 1000); // Wait for reveal animation to complete
+        }
+      }, 1000);
+    } else {
+      // Regular reveal for other picks
+      setScreenShake(true);
+      setTimeout(() => setScreenShake(false), 600);
+      
+      const newDraftOrder = draftOrder.map((p) => 
+        p.id === currentPick.id ? { ...p, revealed: true } : p
+      );
+      setDraftOrder(newDraftOrder);
+      
+      // Check if this was the #1 pick for fireworks
+      if (currentPick.position === 1) {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 3000);
+      }
+    }
+  }, [currentRevealIndex, sortedDraftOrder, draftOrder, setDraftOrder, scrollToCard]);
+
+
+  const nextReveal = useCallback(() => {
+    const nextIndex = currentRevealIndex + 1;
+
+    if (nextIndex >= sortedDraftOrder.length) {
+      setAllRevealed(true);
+      return;
+    }
+
+    setCurrentRevealIndex(nextIndex);
+    // Scroll to next card with proper header offset
+    setTimeout(() => scrollToCard(nextIndex), 200);
+  }, [currentRevealIndex, sortedDraftOrder.length, scrollToCard]);
+
+  const resetReveal = useCallback(() => {
+    setCurrentRevealIndex(-1);
+    setAllRevealed(false);
+    setShowFireworks(false);
+    setScreenShake(false);
+    
+    // Re-randomize the draft order with enhanced randomization
+    const getSecureRandom = () => {
+      if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return array[0] / (0xffffffff + 1);
+      }
+      // Fallback with multiple random sources
+      return Math.random() * Math.random() * Date.now() % 1;
+    };
+    
+    // Create a copy and reset revealed states
+    const resetPicks = draftOrder.map(pick => ({ ...pick, revealed: false }));
+    
+    // Fisher-Yates shuffle for new randomization
+    const shuffled = [...resetPicks];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(getSecureRandom() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    // Reassign positions
+    const newOrder = shuffled.map((pick, index) => ({
+      ...pick,
+      position: index + 1,
+      revealed: false
+    }));
+    
+    // Reset card refs array for the new order - do this immediately
+    cardRefs.current = new Array(newOrder.length).fill(null);
+    
+    setDraftOrder(newOrder);
+  }, [draftOrder, setDraftOrder]);
+
+
+  // Keyboard shortcuts - defined after all callback functions
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Only handle shortcuts when revealing and not during countdown
@@ -66,199 +254,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentRevealIndex, allRevealed, isCountingDown, sortedDraftOrder]); // Dependencies are correct as these are primitive values
-
-  const startReveal = () => {
-    setCurrentRevealIndex(0);
-    // Scroll to first card after a brief delay to ensure DOM is ready
-    setTimeout(() => scrollToCard(0), 200);
-  };
-
-  // Memoized scroll function to prevent recreation on every render
-  const scrollToCard = useCallback((index: number) => {
-    // Wait a moment for DOM to update after any state changes
-    setTimeout(() => {
-      const cardElement = cardRefs.current[index];
-      if (cardElement) {
-        // Get the card's position relative to the document
-        const cardRect = cardElement.getBoundingClientRect();
-        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // Calculate the target scroll position accounting for fixed header height
-        const headerHeight = 360;
-        const targetScrollY = currentScrollY + cardRect.top - headerHeight;
-        
-        // Scroll to the calculated position smoothly
-        window.scrollTo({
-          top: Math.max(0, targetScrollY),
-          behavior: 'smooth'
-        });
-        
-        // Set revealing state after scroll animation completes
-        setTimeout(() => {
-          setIsRevealing(true);
-        }, 600);
-      } else {
-        // Simplified retry logic - single retry only
-        setTimeout(() => {
-          const retryCardElement = cardRefs.current[index];
-          if (retryCardElement) {
-            const cardRect = retryCardElement.getBoundingClientRect();
-            const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-            const headerHeight = 360;
-            const targetScrollY = currentScrollY + cardRect.top - headerHeight;
-            
-            window.scrollTo({
-              top: Math.max(0, targetScrollY),
-              behavior: 'smooth'
-            });
-            
-            setTimeout(() => setIsRevealing(true), 600);
-          } else {
-            setTimeout(() => setIsRevealing(true), 100);
-          }
-        }, 300);
-      }
-    }, 150);
-  }, []);
-
-  const revealCurrentCard = () => {
-    if (currentRevealIndex < 0 || currentRevealIndex >= sortedDraftOrder.length) return;
-    
-    const currentPick = sortedDraftOrder[currentRevealIndex];
-    
-    // Special suspense for top 3 picks
-    if (currentPick.position <= 3) {
-      startDramaticReveal(currentPick);
-    } else {
-      // Regular reveal for other picks
-      performReveal(currentPick);
-    }
-  };
-
-  const startDramaticReveal = (pick: DraftOrder) => {
-    // Scroll to top to ensure countdown is fully visible
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // Small delay to let scroll complete before starting countdown
-    setTimeout(() => {
-      setIsCountingDown(true);
-      setCountdownValue(3);
-      
-      // Set dramatic text based on position
-      const dramaTexts = {
-        3: "🥉 THIRD OVERALL PICK",
-        2: "🥈 SECOND OVERALL PICK", 
-        1: "🏆 FIRST OVERALL PICK! 🏆"
-      };
-      
-      setDramaText(dramaTexts[pick.position as keyof typeof dramaTexts] || "");
-      setShowDramaText(true);
-    }, 300); // Wait for scroll to complete
-
-    // Countdown sequence
-    const countdownSequence = [3, 2, 1];
-    let currentCount = 0;
-    
-    const countdownInterval = setInterval(() => {
-      if (currentCount < countdownSequence.length) {
-        setCountdownValue(countdownSequence[currentCount]);
-        currentCount++;
-      } else {
-        clearInterval(countdownInterval);
-        setIsCountingDown(false);
-        setShowDramaText(false);
-        performReveal(pick);
-        
-        // Auto-scroll to the revealed card after countdown
-        setTimeout(() => {
-          scrollToCard(currentRevealIndex);
-        }, 1000); // Wait for reveal animation to complete
-      }
-    }, 1000);
-  };
-
-  const performReveal = (pick: DraftOrder) => {
-    // Add screen shake for dramatic effect
-    setScreenShake(true);
-    setTimeout(() => setScreenShake(false), 600);
-    
-    // Reveal the card
-    setDraftOrder(prev => 
-      prev.map((p) => 
-        p.id === pick.id ? { ...p, revealed: true } : p
-      )
-    );
-    
-    // Reset revealing state
-    setIsRevealing(false);
-    
-    // Check if this was the #1 pick for fireworks
-    if (pick.position === 1) {
-      setShowFireworks(true);
-      setTimeout(() => setShowFireworks(false), 3000);
-    }
-  };
-
-  const nextReveal = () => {
-    setIsRevealing(false);
-    const nextIndex = currentRevealIndex + 1;
-
-    if (nextIndex >= sortedDraftOrder.length) {
-      setAllRevealed(true);
-      return;
-    }
-
-    setCurrentRevealIndex(nextIndex);
-    // Scroll to next card with proper header offset
-    setTimeout(() => scrollToCard(nextIndex), 200);
-  };
-
-  const resetReveal = () => {
-    setCurrentRevealIndex(-1);
-    setAllRevealed(false);
-    setShowFireworks(false);
-    setIsRevealing(false);
-    setScreenShake(false);
-    
-    // Re-randomize the draft order with enhanced randomization
-    const getSecureRandom = () => {
-      if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-        const array = new Uint32Array(1);
-        window.crypto.getRandomValues(array);
-        return array[0] / (0xffffffff + 1);
-      }
-      // Fallback with multiple random sources
-      return Math.random() * Math.random() * Date.now() % 1;
-    };
-    
-    setDraftOrder(prev => {
-      // Create a copy and reset revealed states
-      const resetPicks = prev.map(pick => ({ ...pick, revealed: false }));
-      
-      // Fisher-Yates shuffle for new randomization
-      const shuffled = [...resetPicks];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(getSecureRandom() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      
-      // Reassign positions
-      const newOrder = shuffled.map((pick, index) => ({
-        ...pick,
-        position: index + 1,
-        revealed: false
-      }));
-      
-      // Reset card refs array for the new order - do this immediately
-      cardRefs.current = new Array(newOrder.length).fill(null);
-      
-      return newOrder;
-    });
-  };
+  }, [currentRevealIndex, allRevealed, isCountingDown, sortedDraftOrder, revealCurrentCard, nextReveal, resetReveal]);
 
   return (
     <>
@@ -531,7 +527,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
                     className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl p-4 border border-blue-400/30 mb-6"
                   >
                     <div className="text-blue-300 text-sm md:text-base italic">
-                      "The 2025 Fantasy Football Draft is now complete. May the best fantasy manager win!"
+                      &quot;The 2025 Fantasy Football Draft is now complete. May the best fantasy manager win!&quot;
                     </div>
                     <div className="text-blue-400 text-xs mt-2 font-semibold">
                       - Your Fantasy Commissioner
@@ -662,7 +658,7 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
                   {pick.name}
                 </div>
                 <div className="text-sm font-bold text-gray-200 mb-3 leading-tight line-clamp-1">
-                  "{pick.team}"
+                  &quot;{pick.team}&quot;
                 </div>
               </div>
               
@@ -675,7 +671,7 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
                 
                 <div className="bg-blue-800/70 rounded-lg p-2 border border-yellow-500/30">
                   <div className="text-xs text-yellow-400 uppercase tracking-wide font-bold mb-1">💬 MOTTO</div>
-                  <div className="text-xs text-gray-200 italic line-clamp-2">"{pick.motto}"</div>
+                  <div className="text-xs text-gray-200 italic line-clamp-2">&quot;{pick.motto}&quot;</div>
                 </div>
               </div>
             </div>
