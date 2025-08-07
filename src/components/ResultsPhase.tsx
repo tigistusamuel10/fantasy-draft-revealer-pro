@@ -205,21 +205,21 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
 
                   {/* Details Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Strategy</div>
+                    <div className="bg-white/5 rounded-lg p-3 border border-green-500/20">
+                      <div className="text-xs font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text uppercase tracking-wide mb-1">🎯 STRATEGY</div>
                       <div className="text-sm font-medium text-white">{pick.strategy}</div>
                     </div>
                     
-                    <div className="bg-white/5 rounded-lg p-3 md:col-span-2">
-                      <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">Team Motto</div>
-                      <div className="text-sm text-slate-300 italic">&quot;{pick.motto}&quot;</div>
+                    <div className="bg-white/5 rounded-lg p-3 md:col-span-2 border border-blue-500/20">
+                      <div className="text-xs font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text uppercase tracking-wide mb-1">💪 TEAM MOTTO</div>
+                      <div className="text-sm text-slate-300 italic font-medium">&quot;{pick.motto}&quot;</div>
                     </div>
                   </div>
 
                   {/* Prediction */}
-                  <div className="mt-4 bg-gradient-to-r from-green-500/10 to-yellow-500/10 rounded-lg p-3 border border-green-500/20">
-                    <div className="text-xs text-green-300 uppercase tracking-wide mb-1">Season Prediction</div>
-                    <div className="text-sm text-green-100 font-medium">&quot;{pick.prediction}&quot;</div>
+                  <div className="mt-4 bg-gradient-to-r from-green-500/10 to-yellow-500/10 rounded-lg p-3 border border-green-500/30">
+                    <div className="text-xs font-bold text-transparent bg-gradient-to-r from-purple-300 to-purple-500 bg-clip-text uppercase tracking-wide mb-1">🔮 SEASON PREDICTION</div>
+                    <div className="text-sm text-green-100 font-medium italic">&quot;{pick.prediction}&quot;</div>
                   </div>
                 </div>
               </div>

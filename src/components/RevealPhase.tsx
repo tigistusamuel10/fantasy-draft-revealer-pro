@@ -664,14 +664,14 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
               
               {/* Details */}
               <div className="space-y-2 flex-1 flex flex-col justify-end">
-                <div className="bg-blue-800/70 rounded-lg p-2 border border-yellow-500/30">
-                  <div className="text-xs text-yellow-400 uppercase tracking-wide font-bold mb-1">🏈 STRATEGY</div>
-                  <div className="text-xs font-medium text-white line-clamp-2">{pick.strategy}</div>
+                <div className="bg-gradient-to-br from-green-800/60 to-green-900/60 rounded-lg p-2 border border-green-400/30">
+                  <div className="text-xs font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text uppercase tracking-wide mb-1">🎯 STRATEGY</div>
+                  <div className="text-xs font-bold text-white line-clamp-2">{pick.strategy}</div>
                 </div>
                 
-                <div className="bg-blue-800/70 rounded-lg p-2 border border-yellow-500/30">
-                  <div className="text-xs text-yellow-400 uppercase tracking-wide font-bold mb-1">💬 MOTTO</div>
-                  <div className="text-xs text-gray-200 italic line-clamp-2">&quot;{pick.motto}&quot;</div>
+                <div className="bg-gradient-to-br from-blue-800/60 to-blue-900/60 rounded-lg p-2 border border-blue-400/30">
+                  <div className="text-xs font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text uppercase tracking-wide mb-1">💪 MOTTO</div>
+                  <div className="text-xs text-gray-200 italic font-medium line-clamp-2">&quot;{pick.motto}&quot;</div>
                 </div>
               </div>
             </div>

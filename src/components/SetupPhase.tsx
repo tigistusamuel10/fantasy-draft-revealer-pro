@@ -197,9 +197,10 @@ export function SetupPhase({ onStartReveal }: SetupPhaseProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <label className="text-xl font-semibold text-white mb-4 block">
-            League Size:
-          </label>
+          <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg mb-6">
+            <label className="text-xl font-bold text-transparent bg-gradient-to-r from-green-300 via-yellow-400 to-orange-400 bg-clip-text mb-4 block tracking-wide uppercase">
+              🏈 League Size Configuration
+            </label>
           <select 
             value={leagueSize} 
             onChange={(e) => setLeagueSize(Number(e.target.value) as LeagueSize)}
@@ -211,6 +212,7 @@ export function SetupPhase({ onStartReveal }: SetupPhaseProps) {
             <option value={14}>14 Teams</option>
             <option value={16}>16 Teams</option>
           </select>
+          </div>
         </motion.div>
 
         {/* Member Cards Grid */}

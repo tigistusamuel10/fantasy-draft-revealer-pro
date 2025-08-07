@@ -22,16 +22,16 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
       {/* Header with Position */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <UserIcon className="h-5 w-5 text-orange-400" />
-          <span className="text-sm font-medium text-slate-400">Member #{index + 1}</span>
+          <UserIcon className="h-5 w-5 text-orange-400 drop-shadow-sm" />
+          <span className="text-sm font-bold text-transparent bg-gradient-to-r from-slate-300 to-slate-400 bg-clip-text tracking-wider uppercase">Member #{index + 1}</span>
         </div>
-        <TrophyIcon className="h-5 w-5 text-yellow-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+        <TrophyIcon className="h-5 w-5 text-yellow-400 opacity-60 group-hover:opacity-100 transition-all duration-300 hover:scale-110" />
       </div>
 
       {/* Name Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Name
+        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-orange-300 to-orange-500 bg-clip-text mb-2 tracking-wide">
+          🏈 NAME
         </label>
         <input
           type="text"
@@ -44,8 +44,8 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
 
       {/* Team Name Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Team Name
+        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text mb-2 tracking-wide">
+          ⚡ TEAM NAME
         </label>
         <input
           type="text"
@@ -58,8 +58,8 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
 
       {/* Draft Strategy */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Strategy
+        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text mb-2 tracking-wide">
+          🎯 STRATEGY
         </label>
         <select
           value={member.strategy}
@@ -76,8 +76,8 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
 
       {/* Motto Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Motto
+        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text mb-2 tracking-wide">
+          💪 MOTTO
         </label>
         <input
           type="text"
@@ -90,8 +90,8 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
 
       {/* Prediction Input */}
       <div className="mb-0">
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Season Prediction
+        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-purple-300 to-purple-500 bg-clip-text mb-2 tracking-wide">
+          🔮 SEASON PREDICTION
         </label>
         <input
           type="text"
