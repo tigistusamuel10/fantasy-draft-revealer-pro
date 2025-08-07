@@ -140,125 +140,228 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header - Match RevealPhase styling */}
-      <motion.div 
-        className="text-center mb-12 backdrop-blur-xl bg-slate-900/50 rounded-3xl p-8 border border-yellow-500/20 shadow-2xl"
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <motion.div 
-            animate={{ 
-              rotate: [0, 360],
-              scale: [1, 1.1, 1]
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={`bg-particle-${i}`}
+            className="absolute w-2 h-2 bg-yellow-400/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
             }}
-            transition={{ 
-              duration: 20, 
-              repeat: Infinity, 
-              ease: "linear" 
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.2, 0.6, 0.2],
+              scale: [0.5, 1, 0.5]
             }}
-            className="p-3 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
-          >
-            <TrophyIcon className="h-8 w-8 text-black" />
-          </motion.div>
-          
-          <div>
-            <motion.h1 
-              className="text-4xl md:text-6xl font-black leading-tight"
-              animate={{ 
-                backgroundPosition: ['0%', '100%', '0%']
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+        {/* Ultra-Modern Header */}
+        <motion.div 
+          className="text-center mb-12 relative"
+          initial={{ opacity: 0, y: -50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
+        >
+          {/* Main Header Card */}
+          <div className="relative backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+            {/* Animated gradient background */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 via-orange-500/5 to-red-500/5 rounded-3xl blur-xl"
+              animate={{
+                scale: [1, 1.05, 1],
+                opacity: [0.3, 0.6, 0.3]
               }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity,
-                ease: 'linear'
-              }}
-            >
-              <span className="bg-gradient-to-r from-green-400 via-yellow-400 to-yellow-500 bg-clip-text text-transparent">
-                FINAL DRAFT ORDER
-              </span>
-            </motion.h1>
-            <motion.div 
-              className="mt-2 flex items-center justify-center gap-2"
-              animate={{ 
-                backgroundPosition: ['0%', '100%', '0%']
-              }}
-              transition={{ 
+              transition={{
                 duration: 4,
                 repeat: Infinity,
-                ease: 'linear'
+                ease: "easeInOut"
               }}
-            >
-              <div className="flex items-center gap-2 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-full px-4 py-2 border border-yellow-500/30">
-                <span className="text-yellow-400 text-lg">🏆</span>
-                <span className="text-sm font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 bg-clip-text text-transparent uppercase tracking-wider">
-                  Fantasy Football 2025
-                </span>
+            />
+            
+            {/* Floating decorative elements */}
+            <div className="absolute -top-4 -left-4 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full opacity-60" />
+            <div className="absolute -top-4 -right-4 w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full opacity-60" />
+            <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-60" />
+            <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full opacity-60" />
+            
+            <div className="relative z-10">
+              {/* Trophy and Title Section */}
+              <div className="flex items-center justify-center gap-6 mb-8">
                 <motion.div 
-                  className="w-2 h-2 bg-yellow-400 rounded-full"
                   animate={{ 
-                    opacity: [1, 0.3, 1],
-                    scale: [1, 0.8, 1]
+                    rotate: [0, 360],
+                    scale: [1, 1.2, 1]
                   }}
                   transition={{ 
-                    duration: 1.5,
+                    duration: 20, 
+                    repeat: Infinity, 
+                    ease: "linear" 
+                  }}
+                  className="relative p-4 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl shadow-2xl"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-2xl blur-lg opacity-50" />
+                  <TrophyIcon className="h-12 w-12 text-black relative z-10" />
+                </motion.div>
+                
+                <div className="text-center">
+                  <motion.h1 
+                    className="text-5xl md:text-7xl font-black leading-tight mb-4"
+                    animate={{ 
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                      textShadow: [
+                        "0 0 30px rgba(251, 191, 36, 0.3)",
+                        "0 0 50px rgba(251, 191, 36, 0.6)",
+                        "0 0 30px rgba(251, 191, 36, 0.3)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 4, 
+                      repeat: Infinity, 
+                      ease: "easeInOut"
+                    }}
+                    style={{
+                      backgroundSize: "200% 100%"
+                    }}
+                  >
+                    <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-500 bg-clip-text text-transparent">
+                      OFFICIAL
+                    </span>
+                  </motion.h1>
+                  <motion.h2
+                    className="text-3xl md:text-5xl font-black bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                  >
+                    DRAFT ORDER
+                  </motion.h2>
+                  
+                  {/* Animated underline */}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 1.5, delay: 0.6 }}
+                    className="h-1 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-full mx-auto mt-4"
+                  />
+                </div>
+                
+                <motion.div 
+                  animate={{ 
+                    rotate: [0, -15, 15, 0],
+                    scale: [1, 1.2, 1]
+                  }}
+                  transition={{ 
+                    duration: 6,
                     repeat: Infinity,
                     ease: 'easeInOut'
                   }}
-                />
+                  className="relative p-4 bg-gradient-to-br from-green-400 to-blue-500 rounded-2xl shadow-2xl"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-300 to-blue-400 rounded-2xl blur-lg opacity-50" />
+                  <SparklesIcon className="h-12 w-12 text-white relative z-10" />
+                </motion.div>
               </div>
-            </motion.div>
+              
+              {/* Status Banner */}
+              <motion.div 
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-green-600/80 via-green-500/80 to-green-600/80 backdrop-blur-sm text-white px-8 py-4 rounded-2xl shadow-xl border border-green-400/30 mb-6"
+                animate={{
+                  boxShadow: [
+                    "0 8px 30px rgba(34, 197, 94, 0.3)",
+                    "0 12px 40px rgba(34, 197, 94, 0.5)",
+                    "0 8px 30px rgba(34, 197, 94, 0.3)"
+                  ],
+                  scale: [1, 1.05, 1]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-3 h-3 bg-white rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 1],
+                      opacity: [1, 0.4, 1]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.3
+                    }}
+                  />
+                ))}
+                <span className="text-lg font-black tracking-wider uppercase">DRAFT COMPLETED</span>
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i + 3}
+                    className="w-3 h-3 bg-white rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 1],
+                      opacity: [1, 0.4, 1]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: (i * 0.3) + 1.5
+                    }}
+                  />
+                ))}
+              </motion.div>
+              
+              {/* Subtitle with Enhanced Animation */}
+              <motion.div 
+                className="flex items-center justify-center gap-3 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.9 }}
+              >
+                <div className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 backdrop-blur-sm rounded-2xl px-6 py-3 border border-yellow-500/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-yellow-400 text-2xl">🏆</span>
+                    <span className="text-lg font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-500 bg-clip-text text-transparent uppercase tracking-wider">
+                      Fantasy Football 2025
+                    </span>
+                    <motion.div 
+                      className="w-2 h-2 bg-yellow-400 rounded-full"
+                      animate={{ 
+                        opacity: [1, 0.3, 1],
+                        scale: [1, 1.5, 1]
+                      }}
+                      transition={{ 
+                        duration: 1.8,
+                        repeat: Infinity,
+                        ease: 'easeInOut'
+                      }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.p 
+                className="text-xl md:text-2xl text-slate-200 max-w-3xl mx-auto font-medium leading-relaxed"
+                animate={{ 
+                  opacity: [0.8, 1, 0.8],
+                  scale: [1, 1.02, 1]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                <span className="text-yellow-400">⚡</span> The destiny has been revealed! Here&apos;s your official fantasy football draft order. <span className="text-green-400">🎯</span>
+              </motion.p>
+            </div>
           </div>
-          
-          <motion.div 
-            animate={{ 
-              rotate: [0, -10, 10, 0],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ 
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
-            className="p-3 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl shadow-xl"
-          >
-            <SparklesIcon className="h-8 w-8 text-white" />
-          </motion.div>
-        </div>
-        
-        {/* Results Complete Banner */}
-        <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-600 text-white px-6 py-3 rounded-full shadow-lg inline-block mb-6">
-          <div className="flex items-center gap-2">
-            <motion.div 
-              className="w-2 h-2 bg-white rounded-full"
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [1, 0.5, 1]
-              }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            />
-            <span className="text-sm font-bold tracking-wide uppercase">Draft Order Complete</span>
-            <motion.div 
-              className="w-2 h-2 bg-white rounded-full"
-              animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [1, 0.5, 1]
-              }}
-              transition={{ duration: 1.5, repeat: Infinity, delay: 0.75 }}
-            />
-          </div>
-        </div>
-        
-        <motion.p 
-          className="text-xl text-slate-200 max-w-2xl mx-auto font-medium"
-          animate={{ opacity: [0.8, 1, 0.8] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          The destiny has been revealed! Here&apos;s your official fantasy football draft order.
-        </motion.p>
-      </motion.div>
+        </motion.div>
 
       {/* Draft Order List */}
       <motion.div 
@@ -406,6 +509,7 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
           </div>
         </motion.div>
       </motion.div>
+      </div>
     </div>
   );
 }

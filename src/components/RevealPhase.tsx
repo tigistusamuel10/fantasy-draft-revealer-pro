@@ -275,9 +275,9 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
 
   return (
     <>
-      {/* Standard Header - Fixed at top - OUTSIDE of animated container - Hide during countdown */}
+      {/* Standard Header - Fixed at top - OUTSIDE of animated container - Hide during countdown AND epic celebration */}
       <AnimatePresence>
-        {!(isCountingDown || showDramaText) && (
+        {!(isCountingDown || showDramaText || showEpicCelebration) && (
           <motion.div 
             className="fixed top-0 left-0 right-0 w-full bg-slate-900 border-b border-yellow-500/20 backdrop-blur-md shadow-lg"
             style={{
@@ -781,76 +781,279 @@ interface DraftCardProps {
 function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps) {
   return (
     <motion.div 
-      className="relative h-72 perspective-1000"  // Increased height from h-64 to h-72
+      className="relative h-80 perspective-1000"  // Increased height for better content
       animate={isCurrentlyRevealing ? { 
-        scale: [1, 1.1, 1.05, 1.1, 1],
-        rotate: [0, -2, 2, -1, 0]
+        scale: [1, 1.08, 1.05, 1.08, 1],
+        rotate: [0, -1.5, 1.5, -0.8, 0]
       } : {}}
       transition={{ duration: 1.2, ease: "easeInOut" }}
     >
-      {/* Simplified Glow Effect - Reduced animations for better performance */}
+      {/* Enhanced Glow Effect with Multiple Layers */}
       {isCurrentlyRevealing && (
-        <div
-          className="absolute -inset-2 rounded-2xl border-2 border-yellow-400 animate-pulse"
-          style={{
-            boxShadow: '0 0 20px rgba(255,215,0,0.8)'
-          }}
-        />
+        <>
+          {/* Outer glow */}
+          <motion.div
+            className="absolute -inset-4 rounded-3xl opacity-60"
+            animate={{
+              boxShadow: [
+                '0 0 30px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.2)',
+                '0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,215,0,0.3)',
+                '0 0 30px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.2)'
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          {/* Inner border glow */}
+          <div
+            className="absolute -inset-2 rounded-2xl border-2 border-yellow-400/80 animate-pulse"
+            style={{
+              boxShadow: 'inset 0 0 20px rgba(255,215,0,0.3)'
+            }}
+          />
+        </>
       )}
 
-      {/* Card */}
+      {/* Card Container with Enhanced 3D Effect */}
       <motion.div
-        className="relative w-full h-full preserve-3d cursor-pointer"
+        className="relative w-full h-full preserve-3d cursor-pointer group"
         animate={{ rotateY: pick.revealed ? 180 : 0 }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
+        transition={{ 
+          duration: 1.2, 
+          ease: "easeInOut",
+          type: "spring",
+          stiffness: 100,
+          damping: 15
+        }}
       >
-        {/* Front (Hidden) - Draft Board Style */}
-        <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl border-2 border-yellow-500 shadow-2xl flex items-center justify-center overflow-hidden">
-          <div className="text-center p-4 w-full h-full flex flex-col justify-center">
-            <div className="text-5xl mb-3">🏈</div>
-            <div className="bg-yellow-500 text-black px-3 py-2 rounded-lg mb-3 mx-auto">
-              <div className="text-xs font-bold uppercase">PICK</div>
-              <div className="text-xl font-black">#{pick.position}</div>
+        {/* Front (Hidden) - Luxurious Draft Board Style */}
+        <div className="absolute inset-0 backface-hidden rounded-2xl overflow-hidden">
+          {/* Animated background with mesh gradient */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-br from-slate-800/95 via-slate-900/95 to-black/95 backdrop-blur-xl"
+            animate={{
+              background: [
+                'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.95) 50%, rgba(0,0,0,0.95) 100%)',
+                'linear-gradient(135deg, rgba(51,65,85,0.95) 0%, rgba(30,41,59,0.95) 50%, rgba(15,23,42,0.95) 100%)',
+                'linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.95) 50%, rgba(0,0,0,0.95) 100%)'
+              ]
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          
+          {/* Glassmorphism border */}
+          <div className="absolute inset-0 rounded-2xl border border-yellow-500/30 backdrop-blur-sm" />
+          <div className="absolute inset-0 rounded-2xl border-2 border-yellow-500/60 shadow-2xl" />
+          
+          {/* Floating particles */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 bg-yellow-400/40 rounded-full"
+              style={{
+                left: `${20 + Math.random() * 60}%`,
+                top: `${20 + Math.random() * 60}%`,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                opacity: [0.2, 0.8, 0.2],
+                scale: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 3,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+          
+          <div className="relative z-10 text-center p-6 w-full h-full flex flex-col justify-center">
+            {/* Enhanced Football Icon with Animation */}
+            <motion.div 
+              className="text-6xl mb-4"
+              animate={{
+                rotateY: [0, 15, -15, 0],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            >
+              🏈
+            </motion.div>
+            
+            {/* Enhanced Pick Badge */}
+            <motion.div 
+              className="relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-3 rounded-xl mb-4 mx-auto shadow-2xl"
+              animate={{
+                boxShadow: [
+                  '0 8px 25px rgba(255,193,7,0.3)',
+                  '0 12px 35px rgba(255,193,7,0.4)',
+                  '0 8px 25px rgba(255,193,7,0.3)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-xl blur-sm opacity-50" />
+              <div className="relative z-10">
+                <div className="text-xs font-black uppercase tracking-widest">PICK</div>
+                <div className="text-2xl font-black">#{pick.position}</div>
+              </div>
+            </motion.div>
+            
+            {/* Enhanced Status Text */}
+            <motion.div 
+              className="text-sm text-slate-300 uppercase tracking-widest font-bold"
+              animate={{
+                opacity: [0.7, 1, 0.7],
+                color: ['rgb(203, 213, 225)', 'rgb(251, 191, 36)', 'rgb(203, 213, 225)']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              ON THE CLOCK
+            </motion.div>
+            
+            {/* Draft Position Indicator */}
+            <div className="mt-4 flex justify-center space-x-1">
+              {[...Array(Math.min(pick.position, 5))].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-2 h-2 bg-yellow-400/60 rounded-full"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.4, 1, 0.4]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: i * 0.2
+                  }}
+                />
+              ))}
             </div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide">ON THE CLOCK</div>
           </div>
         </div>
 
-        {/* Back (Revealed) - NFL Team Colors */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-blue-800 via-blue-900 to-blue-950 rounded-2xl border-2 border-yellow-400 shadow-2xl overflow-hidden">
+        {/* Back (Revealed) - Ultra-Modern NFL Style */}
+        <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl overflow-hidden">
           {showFireworks && <FireworksEffect />}
           
-          <div className="p-3 h-full flex flex-col">
-            {/* NFL Draft Style Header */}
-            <div className="bg-yellow-500 text-black px-2 py-1 rounded-lg mb-3 text-center flex-shrink-0">
-              <div className="text-xs font-bold uppercase tracking-wide leading-tight">DRAFTED</div>
-              <div className="text-lg font-black">#{pick.position}</div>
-            </div>
+          {/* Dynamic Background Based on Pick Position */}
+          <motion.div 
+            className={`absolute inset-0 ${
+              pick.position === 1 ? 'bg-gradient-to-br from-yellow-600/90 via-orange-600/90 to-red-600/90' :
+              pick.position === 2 ? 'bg-gradient-to-br from-gray-400/90 via-gray-500/90 to-gray-600/90' :
+              pick.position === 3 ? 'bg-gradient-to-br from-amber-600/90 via-yellow-700/90 to-orange-700/90' :
+              pick.position <= 5 ? 'bg-gradient-to-br from-blue-600/90 via-blue-700/90 to-blue-800/90' :
+              pick.position <= 10 ? 'bg-gradient-to-br from-green-600/90 via-green-700/90 to-green-800/90' :
+              'bg-gradient-to-br from-purple-600/90 via-purple-700/90 to-purple-800/90'
+            } backdrop-blur-xl`}
+            animate={{
+              opacity: [0.9, 1, 0.9]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          />
+          
+          {/* Glassmorphism overlay */}
+          <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+          <div className="absolute inset-0 rounded-2xl border border-white/20" />
+          <div className="absolute inset-0 rounded-2xl border-2 border-yellow-400/60 shadow-2xl" />
+          
+          {/* Content with better spacing */}
+          <div className="relative z-10 p-4 h-full flex flex-col">
+            {/* Enhanced Draft Header */}
+            <motion.div 
+              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-2 rounded-xl mb-4 text-center flex-shrink-0 shadow-xl"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <div className="text-xs font-black uppercase tracking-widest">DRAFTED</div>
+              <div className="text-xl font-black">#{pick.position}</div>
+              {pick.position <= 3 && (
+                <motion.div 
+                  className="text-xs mt-1 font-bold"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  {pick.position === 1 ? '👑 FIRST!' : pick.position === 2 ? '🥈 SECOND' : '🥉 THIRD'}
+                </motion.div>
+              )}
+            </motion.div>
             
-            {/* Content Area */}
-            <div className="flex-1 flex flex-col justify-between text-center text-white min-h-0">
-              {/* Player Info */}
-              <div className="flex-shrink-0">
-                <div className="text-lg font-black text-yellow-400 mb-1 uppercase leading-tight line-clamp-1">
-                  {pick.name}
+            {/* Player Info Section */}
+            <motion.div 
+              className="flex-shrink-0 mb-4"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                <div className="text-xl font-black text-white mb-2 uppercase leading-tight">
+                  <span className="bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
+                    {pick.name}
+                  </span>
                 </div>
-                <div className="text-sm font-bold text-gray-200 mb-3 leading-tight line-clamp-1">
-                  &quot;{pick.team}&quot;
+                <div className="text-sm font-bold text-slate-200 mb-2">
+                  <span className="text-yellow-400">⚡</span> &quot;{pick.team}&quot;
+                </div>
+                <div className="text-xs text-slate-400 uppercase tracking-widest">
+                  Fantasy Manager
                 </div>
               </div>
+            </motion.div>
+            
+            {/* Enhanced Details Section */}
+            <div className="space-y-3 flex-1 flex flex-col justify-end">
+              <motion.div 
+                className="bg-gradient-to-br from-emerald-800/80 to-green-900/80 backdrop-blur-sm rounded-xl p-3 border border-emerald-400/40 shadow-lg"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-emerald-300 text-lg">🎯</span>
+                  <div className="text-xs font-black text-transparent bg-gradient-to-r from-emerald-200 to-green-400 bg-clip-text uppercase tracking-wider">
+                    STRATEGY
+                  </div>
+                </div>
+                <div className="text-xs font-bold text-white leading-relaxed">
+                  {pick.strategy}
+                </div>
+              </motion.div>
               
-              {/* Details */}
-              <div className="space-y-2 flex-1 flex flex-col justify-end">
-                <div className="bg-gradient-to-br from-green-800/60 to-green-900/60 rounded-lg p-2 border border-green-400/30">
-                  <div className="text-xs font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text uppercase tracking-wide mb-1">🎯 STRATEGY</div>
-                  <div className="text-xs font-bold text-white line-clamp-2">{pick.strategy}</div>
+              <motion.div 
+                className="bg-gradient-to-br from-blue-800/80 to-indigo-900/80 backdrop-blur-sm rounded-xl p-3 border border-blue-400/40 shadow-lg"
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-blue-300 text-lg">💪</span>
+                  <div className="text-xs font-black text-transparent bg-gradient-to-r from-blue-200 to-cyan-400 bg-clip-text uppercase tracking-wider">
+                    BATTLE CRY
+                  </div>
                 </div>
-                
-                <div className="bg-gradient-to-br from-blue-800/60 to-blue-900/60 rounded-lg p-2 border border-blue-400/30">
-                  <div className="text-xs font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text uppercase tracking-wide mb-1">💪 MOTTO</div>
-                  <div className="text-xs text-gray-200 italic font-medium line-clamp-2">&quot;{pick.motto}&quot;</div>
+                <div className="text-xs text-slate-200 italic font-medium leading-relaxed">
+                  &quot;{pick.motto}&quot;
                 </div>
-              </div>
+              </motion.div>
+              
+              {/* Prediction Section */}
+              <motion.div 
+                className="bg-gradient-to-br from-purple-800/80 to-pink-900/80 backdrop-blur-sm rounded-xl p-3 border border-purple-400/40 shadow-lg"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-purple-300 text-lg">🔮</span>
+                  <div className="text-xs font-black text-transparent bg-gradient-to-r from-purple-200 to-pink-400 bg-clip-text uppercase tracking-wider">
+                    PREDICTION
+                  </div>
+                </div>
+                <div className="text-xs text-slate-200 font-medium leading-relaxed">
+                  {pick.prediction}
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -1212,80 +1415,170 @@ function StandardHeader({
 function FireworksEffect() {
   return (
     <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-      {/* Multiple layers of fireworks for #1 pick */}
-      {/* Main burst */}
-      {[...Array(12)].map((_, i) => (
+      {/* Ultra-Spectacular Multi-Layer Fireworks */}
+      
+      {/* Primary Golden Burst */}
+      {[...Array(16)].map((_, i) => (
         <motion.div
-          key={`main-${i}`}
+          key={`golden-${i}`}
+          className="absolute w-4 h-4 rounded-full"
+          style={{
+            left: '50%',
+            top: '50%',
+            background: `linear-gradient(45deg, hsl(${45 + (i * 15)}, 100%, 60%), hsl(${60 + (i * 15)}, 100%, 70%))`,
+            boxShadow: `0 0 20px hsl(${45 + (i * 15)}, 100%, 60%), 0 0 40px hsl(${45 + (i * 15)}, 100%, 40%)`
+          }}
+          animate={{
+            x: [0, (Math.cos(i * Math.PI / 8) * (120 + Math.random() * 80))],
+            y: [0, (Math.sin(i * Math.PI / 8) * (120 + Math.random() * 80))],
+            opacity: [1, 0.9, 0.7, 0],
+            scale: [0, 2.5, 1.8, 0],
+            rotate: [0, 360]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            repeatDelay: 0.2,
+            delay: i * 0.08,
+            ease: "easeOut"
+          }}
+        />
+      ))}
+      
+      {/* Secondary Rainbow Burst */}
+      {[...Array(24)].map((_, i) => (
+        <motion.div
+          key={`rainbow-${i}`}
           className="absolute w-3 h-3 rounded-full"
           style={{
             left: '50%',
             top: '50%',
-            background: `hsl(${(i * 30) % 360}, 100%, 60%)`,
-            boxShadow: '0 0 10px currentColor'
+            background: `hsl(${(i * 15) % 360}, 100%, 65%)`,
+            boxShadow: `0 0 15px hsl(${(i * 15) % 360}, 100%, 65%)`
           }}
           animate={{
-            x: [0, (Math.cos(i * Math.PI / 6) * 80)],
-            y: [0, (Math.sin(i * Math.PI / 6) * 80)],
-            opacity: [1, 0.8, 0],
-            scale: [0.5, 1.5, 0],
+            x: [0, (Math.cos(i * Math.PI / 12) * (80 + Math.random() * 120))],
+            y: [0, (Math.sin(i * Math.PI / 12) * (80 + Math.random() * 120))],
+            opacity: [0.8, 1, 0.5, 0],
+            scale: [0.5, 2, 1.5, 0],
           }}
           transition={{
-            duration: 2,
+            duration: 2.8,
             repeat: Infinity,
-            repeatDelay: 0.3,
-            delay: i * 0.1,
+            repeatDelay: 0.1,
+            delay: 0.3 + (i * 0.06),
             ease: "easeOut"
           }}
         />
       ))}
       
-      {/* Secondary burst */}
-      {[...Array(16)].map((_, i) => (
+      {/* Diamond Sparkles */}
+      {[...Array(32)].map((_, i) => (
         <motion.div
-          key={`secondary-${i}`}
-          className="absolute w-2 h-2 rounded-full bg-yellow-300"
+          key={`diamond-${i}`}
+          className="absolute w-2 h-2"
           style={{
-            left: '50%',
-            top: '50%',
-            boxShadow: '0 0 8px #fbbf24'
+            left: `${25 + Math.random() * 50}%`,
+            top: `${25 + Math.random() * 50}%`,
+            background: 'linear-gradient(45deg, #ffffff, #fbbf24, #ffffff)',
+            clipPath: 'polygon(50% 0%, 0% 50%, 50% 100%, 100% 50%)',
+            filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))'
           }}
           animate={{
-            x: [0, (Math.cos(i * Math.PI / 8) * 100)],
-            y: [0, (Math.sin(i * Math.PI / 8) * 100)],
-            opacity: [0.8, 1, 0],
-            scale: [1, 1.2, 0],
+            opacity: [0, 1, 0.7, 0],
+            scale: [0, 1.5, 1, 0],
+            rotate: [0, 180, 360],
+            y: [0, -30 - Math.random() * 40, 0],
+            x: [0, (Math.random() - 0.5) * 60, 0]
           }}
           transition={{
             duration: 2.5,
             repeat: Infinity,
-            repeatDelay: 0.2,
-            delay: 0.5 + i * 0.08,
+            delay: Math.random() * 3,
+            repeatDelay: Math.random() * 2,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+      
+      {/* Glowing Stars */}
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={`star-${i}`}
+          className="absolute text-yellow-300"
+          style={{
+            left: `${20 + Math.random() * 60}%`,
+            top: `${20 + Math.random() * 60}%`,
+            fontSize: `${1 + Math.random() * 1.5}rem`,
+            filter: 'drop-shadow(0 0 10px currentColor)'
+          }}
+          animate={{
+            opacity: [0, 1, 0.6, 0],
+            scale: [0, 1.3, 1, 0],
+            rotate: [0, Math.random() * 360],
+          }}
+          transition={{
+            duration: 2 + Math.random(),
+            repeat: Infinity,
+            delay: Math.random() * 4,
+            repeatDelay: Math.random() * 3,
+            ease: "easeOut"
+          }}
+        >
+          ⭐
+        </motion.div>
+      ))}
+      
+      {/* Magical Particle Trail */}
+      {[...Array(40)].map((_, i) => (
+        <motion.div
+          key={`particle-${i}`}
+          className="absolute w-1 h-1 bg-gradient-to-r from-yellow-300 to-orange-400 rounded-full"
+          style={{
+            left: `${30 + Math.random() * 40}%`,
+            top: `${30 + Math.random() * 40}%`,
+            boxShadow: '0 0 6px currentColor'
+          }}
+          animate={{
+            opacity: [0, 0.8, 1, 0.4, 0],
+            scale: [0, 0.8, 1.2, 0.8, 0],
+            x: [0, (Math.random() - 0.5) * 100],
+            y: [0, -50 - Math.random() * 100],
+            rotate: [0, 720]
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            repeatDelay: Math.random() * 3,
             ease: "easeOut"
           }}
         />
       ))}
       
-      {/* Sparkle effects */}
-      {[...Array(20)].map((_, i) => (
+      {/* Celebration Confetti */}
+      {[...Array(25)].map((_, i) => (
         <motion.div
-          key={`sparkle-${i}`}
-          className="absolute w-1 h-1 bg-white rounded-full"
+          key={`confetti-${i}`}
+          className="absolute w-3 h-3"
           style={{
-            left: `${30 + Math.random() * 40}%`,
-            top: `${20 + Math.random() * 60}%`,
-            boxShadow: '0 0 6px #ffffff'
+            left: `${Math.random() * 100}%`,
+            top: '-5%',
+            background: `linear-gradient(45deg, hsl(${Math.random() * 360}, 80%, 60%), hsl(${Math.random() * 360}, 80%, 70%))`,
+            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            transform: `rotate(${Math.random() * 360}deg)`
           }}
           animate={{
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-            rotate: [0, 360]
+            y: ['0vh', '110vh'],
+            rotate: [0, 720 + Math.random() * 360],
+            opacity: [0.9, 0.7, 0.3, 0],
+            scale: [1, 0.8, 0.6, 0]
           }}
           transition={{
-            duration: 1.5,
+            duration: 4 + Math.random() * 3,
             repeat: Infinity,
-            delay: Math.random() * 2,
-            repeatDelay: Math.random() * 3
+            delay: Math.random() * 6,
+            ease: 'linear'
           }}
         />
       ))}

@@ -11,23 +11,70 @@ export function SettingsButton() {
 
   return (
     <div className="fixed top-4 right-4 z-50">
-      {/* Settings Button */}
+      {/* Ultra-Modern Settings Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-3 bg-slate-800/90 hover:bg-slate-700/90 backdrop-blur-md rounded-xl border border-slate-600/50 hover:border-yellow-500/50 transition-colors shadow-lg"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        title="Settings"
+        className="relative p-4 bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-black/80 backdrop-blur-2xl rounded-2xl border border-white/10 hover:border-yellow-500/40 transition-all duration-300 shadow-2xl group overflow-hidden"
+        whileHover={{ scale: 1.08, rotateZ: 5 }}
+        whileTap={{ scale: 0.95, rotateZ: 0 }}
+        title="Audio Settings"
       >
-        <Cog6ToothIcon className="h-5 w-5 text-slate-300 hover:text-yellow-400 transition-colors" />
+        {/* Animated background glow */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 via-orange-500/5 to-red-500/5 rounded-2xl blur-sm"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
         
-        {/* Audio Status Indicator */}
+        {/* Floating particles */}
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-1 h-1 bg-yellow-400/40 rounded-full"
+            style={{
+              left: `${20 + Math.random() * 60}%`,
+              top: `${20 + Math.random() * 60}%`,
+            }}
+            animate={{
+              y: [0, -10, 0],
+              opacity: [0.2, 0.8, 0.2],
+              scale: [0.5, 1, 0.5]
+            }}
+            transition={{
+              duration: 2 + Math.random(),
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+        
+        <motion.div
+          className="relative z-10"
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+        >
+          <Cog6ToothIcon className="h-6 w-6 text-slate-300 group-hover:text-yellow-400 transition-colors duration-300" />
+        </motion.div>
+        
+        {/* Enhanced Audio Status Indicators */}
         {isPlaying && !isMuted && (
           <motion.div
-            className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full"
+            className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-lg"
             animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.8, 1, 0.8]
+              scale: [1, 1.3, 1],
+              boxShadow: [
+                '0 0 10px rgba(34, 197, 94, 0.4)',
+                '0 0 20px rgba(34, 197, 94, 0.6)',
+                '0 0 10px rgba(34, 197, 94, 0.4)'
+              ]
             }}
             transition={{
               duration: 2,
@@ -35,16 +82,21 @@ export function SettingsButton() {
               ease: "easeInOut"
             }}
             title="Audio Playing"
-          />
+          >
+            <span className="text-xs font-bold text-white">♪</span>
+          </motion.div>
         )}
         
         {isMuted && (
           <motion.div
-            className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            className="absolute -top-2 -right-2 flex items-center justify-center w-6 h-6 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-lg"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: 180 }}
             title="Audio Muted"
-          />
+          >
+            <span className="text-xs font-bold text-white">✕</span>
+          </motion.div>
         )}
       </motion.button>
 
