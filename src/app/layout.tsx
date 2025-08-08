@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from '@/hooks/useBackgroundMusic';
+import { GlobalButtonSounds } from '@/components/GlobalButtonSounds';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AudioProvider>
-          {children}
+          <GlobalButtonSounds>
+            {children}
+          </GlobalButtonSounds>
         </AudioProvider>
       </body>
     </html>

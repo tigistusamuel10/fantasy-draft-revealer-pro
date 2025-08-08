@@ -2,15 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { UserIcon, TrophyIcon } from '@heroicons/react/24/outline';
-import { Member, DraftStrategy } from '@/types';
+import { Member } from '@/types';
 
 interface MemberCardProps {
   member: Member;
   index: number;
   onUpdate: (index: number, field: keyof Member, value: string) => void;
 }
-
-const strategyOptions: DraftStrategy[] = ['RB Heavy', 'WR First', 'Zero RB', 'Best Available', 'QB Early'];
 
 export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
   return (
@@ -40,38 +38,6 @@ export function MemberCard({ member, index, onUpdate }: MemberCardProps) {
           className="w-full bg-white/5 backdrop-blur border border-white/10 rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:border-orange-400 transition-all duration-200"
           placeholder="Enter member name"
         />
-      </div>
-
-      {/* Team Name Input */}
-      <div className="mb-4">
-        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text mb-2 tracking-wide">
-          ⚡ TEAM NAME
-        </label>
-        <input
-          type="text"
-          value={member.team}
-          onChange={(e) => onUpdate(index, 'team', e.target.value)}
-          className="w-full bg-white/5 backdrop-blur border border-white/10 rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:border-orange-400 transition-all duration-200"
-          placeholder="Enter team name"
-        />
-      </div>
-
-      {/* Draft Strategy */}
-      <div className="mb-4">
-        <label className="block text-sm font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text mb-2 tracking-wide">
-          🎯 STRATEGY
-        </label>
-        <select
-          value={member.strategy}
-          onChange={(e) => onUpdate(index, 'strategy', e.target.value)}
-          className="w-full bg-white/5 backdrop-blur border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:border-orange-400 transition-all duration-200 cursor-pointer"
-        >
-          {strategyOptions.map((strategy) => (
-            <option key={strategy} value={strategy} className="bg-slate-800">
-              {strategy}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Motto Input */}

@@ -4,54 +4,90 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrophyIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { MemberCard } from './MemberCard';
-import { Member, LeagueSize, DraftStrategy } from '@/types';
+import { Member, LeagueSize } from '@/types';
 
 interface SetupPhaseProps {
   onStartReveal: (members: Member[]) => void;
 }
 
-const testNames = [
-  'Alex Johnson', 'Morgan Smith', 'Taylor Davis', 'Jordan Wilson',
-  'Casey Brown', 'Riley Jones', 'Avery Miller', 'Quinn Garcia',
-  'Blake Martinez', 'Sage Anderson', 'Drew Thompson', 'Reese Williams'
-];
-
-const funTeamNames = [
-  'Thunder Bolts', 'Fire Dragons', 'Lightning Strikes', 'Storm Chasers',
-  'Phantom Force', 'Steel Titans', 'Shadow Wolves', 'Crimson Eagles',
-  'Golden Gladiators', 'Mystic Warriors', 'Apex Predators', 'Velocity Vipers'
-];
-
-const funMottos = [
-  'Victory at all costs!', 'Champions never quit!', 'Dominate or go home!',
-  'Fear the fury!', 'Legends in the making!', 'Unstoppable force!',
-  'Rise above all!', 'Conquer everything!', 'Never back down!',
-  'Elite performance only!', 'Maximum effort, maximum results!', 'Championship or bust!'
-];
-
-const funPredictions = [
-  'Going undefeated this season!', 'Championship trophy incoming!', 
-  'Playoff domination guaranteed!', 'Setting new league records!',
-  'First place finish locked in!', 'Fantasy football perfection!',
-  'Winning it all this year!', 'League champion destiny!',
-  'Unstoppable season ahead!', 'Trophy case getting fuller!',
-  'Victory parade planning!', 'Championship celebration ready!'
+const leagueData = [
+  {
+    name: 'Tony2Drippy',
+    motto: 'Trussss',
+    prediction: 'Will not study for the draft'
+  },
+  {
+    name: 'Sam',
+    motto: 'I should have more rings',
+    prediction: 'Will lose to Dk by 0.002'
+  },
+  {
+    name: 'Bk',
+    motto: 'Cancun on 3!',
+    prediction: 'Will end his playoff drought'
+  },
+  {
+    name: 'Aman',
+    motto: 'Send an article      .',
+    prediction: 'Will not draft a rookie'
+  },
+  {
+    name: 'Josh',
+    motto: 'I have more rings',
+    prediction: 'No more tuition = No more rings'
+  },
+  {
+    name: 'Ebba',
+    motto: "I'm tryna feel sumn",
+    prediction: "Will go to Benihana's!"
+  },
+  {
+    name: 'Moni',
+    motto: 'We are Aliens!',
+    prediction: 'Will trade with Sam'
+  },
+  {
+    name: 'Yanet',
+    motto: 'ITS MY TEAM!',
+    prediction: 'BK will have no access to her team'
+  },
+  {
+    name: 'T',
+    motto: 'The toes better be out!',
+    prediction: 'Will trade with Sam'
+  },
+  {
+    name: 'Dk',
+    motto: 'mmmmmmmmmmm',
+    prediction: 'Will make draft hard by reaching'
+  },
+  {
+    name: 'Yoe',
+    motto: "When's the cut starting?",
+    prediction: 'Will finish higher than Tony'
+  },
+  {
+    name: 'Nedim',
+    motto: "Why they veto...it's fair?",
+    prediction: '37 Nedim specials'
+  }
 ];
 
 export function SetupPhase({ onStartReveal }: SetupPhaseProps) {
   const [leagueSize, setLeagueSize] = useState<LeagueSize>(12);
   const [members, setMembers] = useState<Member[]>([]);
 
-  // Initialize members with test data
+  // Initialize members with league data
   useEffect(() => {
-    const initialMembers: Member[] = Array.from({ length: leagueSize }, (_, i) => ({
-      id: `member-${i + 1}`,
-      name: testNames[i] || `Member ${i + 1}`,
-      team: funTeamNames[i] || `Team ${i + 1}`,
-      motto: funMottos[i] || 'Ready to win!',
-      strategy: (['RB Heavy', 'WR First', 'Zero RB', 'Best Available', 'QB Early'] as DraftStrategy[])[i % 5],
-      prediction: funPredictions[i] || 'This is our year!',
-    }));
+    const initialMembers: Member[] = Array.from({ length: leagueSize }, (_, i) => {
+      const leagueMember = leagueData[i];
+      return {
+        id: `member-${i + 1}`,
+        name: leagueMember?.name || `Member ${i + 1}`,
+        motto: leagueMember?.motto || 'Ready to win!',
+        prediction: leagueMember?.prediction || 'This is our year!',
+      };
+    });
     setMembers(initialMembers);
   }, [leagueSize]);
 

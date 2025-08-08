@@ -7,14 +7,14 @@ import { useAudio } from '@/hooks/useBackgroundMusic';
 
 export function SettingsButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const { volume, isMuted, toggleMute, changeVolume, isPlaying, play, pause, currentTrack } = useAudio();
+  const { musicVolume, soundFXVolume, isMuted, toggleMute, changeMusicVolume, changeSoundFXVolume, isPlaying, play, pause, currentTrack, playCardSelectSound } = useAudio();
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed z-50" style={{ top: '24px', right: '24px' }}>
       {/* Ultra-Modern Settings Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-4 bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-black/80 backdrop-blur-2xl rounded-2xl border border-white/10 hover:border-yellow-500/40 transition-all duration-300 shadow-2xl group overflow-hidden"
+        className="relative p-4 bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-black/80 backdrop-blur-2xl rounded-2xl border border-white/10 hover:border-yellow-500/40 transition-all duration-300 shadow-2xl group"
         whileHover={{ scale: 1.08, rotateZ: 5 }}
         whileTap={{ scale: 0.95, rotateZ: 0 }}
         title="Audio Settings"
@@ -116,7 +116,13 @@ export function SettingsButton() {
             
             {/* Settings Panel */}
             <motion.div
-              className="absolute top-14 right-0 w-72 bg-slate-800/95 backdrop-blur-xl rounded-xl border border-slate-600/50 shadow-2xl overflow-hidden"
+              className="absolute top-14 right-0 w-80 max-w-[90vw] max-h-[80vh] bg-slate-800/95 backdrop-blur-xl rounded-xl border border-slate-600/50 shadow-2xl overflow-hidden"
+              style={{
+                // Ensure the dropdown doesn't go off-screen
+                right: 0,
+                maxWidth: 'min(320px, 90vw)',
+                maxHeight: 'min(600px, 80vh)'
+              }}
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -131,7 +137,7 @@ export function SettingsButton() {
               </div>
 
               {/* Audio Controls */}
-              <div className="p-4 space-y-4">
+              <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(80vh-80px)]">
                 {/* Audio Section Header */}
                 <div className="flex items-center gap-2 mb-3">
                   <SpeakerWaveIcon className="h-4 w-4 text-blue-400" />
@@ -189,12 +195,15 @@ export function SettingsButton() {
                   </button>
                 </div>
 
-                {/* Volume Control */}
+                {/* Music Volume Control */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm text-slate-300 font-medium">Volume</label>
-                    <span className="text-xs text-yellow-400 font-bold bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">
-                      {Math.round(volume * 100)}%
+                    <label className="text-sm text-slate-300 font-medium flex items-center gap-2">
+                      <span className="text-blue-400">🎵</span>
+                      Music Volume
+                    </label>
+                    <span className="text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">
+                      {Math.round(musicVolume * 100)}%
                     </span>
                   </div>
                   
@@ -204,16 +213,59 @@ export function SettingsButton() {
                       min="0"
                       max="1"
                       step="0.05"
-                      value={volume}
-                      onChange={(e) => changeVolume(parseFloat(e.target.value))}
+                      value={musicVolume}
+                      onChange={(e) => changeMusicVolume(parseFloat(e.target.value))}
                       disabled={isMuted}
-                      className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider"
+                      className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider music-slider"
                     />
                     <div className="flex justify-between text-xs text-slate-400 mt-1">
                       <span>0%</span>
                       <span>50%</span>
                       <span>100%</span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Sound Effects Volume Control */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-slate-300 font-medium flex items-center gap-2">
+                      <span className="text-orange-400">🔊</span>
+                      Sound FX Volume
+                    </label>
+                    <span className="text-xs text-orange-400 font-bold bg-orange-500/10 px-2 py-1 rounded border border-orange-500/20">
+                      {Math.round(soundFXVolume * 100)}%
+                    </span>
+                  </div>
+                  
+                  <div className="relative">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={soundFXVolume}
+                      onChange={(e) => changeSoundFXVolume(parseFloat(e.target.value))}
+                      disabled={isMuted}
+                      className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer slider sfx-slider"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                      <span>0%</span>
+                      <span>50%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                  
+                  {/* Test Sound Effects Button */}
+                  <div className="flex justify-center pt-2">
+                    <button
+                      onClick={() => {
+                        playCardSelectSound();
+                      }}
+                      className="px-3 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-xs font-semibold hover:bg-orange-500/30 transition-colors"
+                    >
+                      🔊 Test Sound
+                    </button>
                   </div>
                 </div>
 
@@ -242,39 +294,73 @@ export function SettingsButton() {
 
       {/* Custom Slider Styles */}
       <style jsx>{`
-        .slider::-webkit-slider-thumb {
+        /* Music Slider (Blue theme) */
+        .music-slider::-webkit-slider-thumb {
           appearance: none;
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          background: linear-gradient(135deg, #3b82f6, #2563eb);
           border: 2px solid #1e293b;
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
         
-        .slider::-webkit-slider-thumb:hover {
-          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.5);
+        .music-slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
           transform: scale(1.1);
         }
         
-        .slider::-moz-range-thumb {
+        .music-slider::-moz-range-thumb {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          background: linear-gradient(135deg, #3b82f6, #2563eb);
           border: 2px solid #1e293b;
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
         
+        /* Sound FX Slider (Orange theme) */
+        .sfx-slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #f97316, #ea580c);
+          border: 2px solid #1e293b;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+        
+        .sfx-slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 4px 12px rgba(249, 115, 22, 0.5);
+          transform: scale(1.1);
+        }
+        
+        .sfx-slider::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #f97316, #ea580c);
+          border: 2px solid #1e293b;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+        
+        /* Common slider styles */
         .slider:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
         
         .slider:disabled::-webkit-slider-thumb {
-          background: #64748b;
+          background: #64748b !important;
+          cursor: not-allowed;
+        }
+        
+        .slider:disabled::-moz-range-thumb {
+          background: #64748b !important;
           cursor: not-allowed;
         }
       `}</style>

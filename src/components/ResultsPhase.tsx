@@ -64,38 +64,28 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
         doc.text(medal, margin + 25, yPosition);
       }
       
-      // Name and Team (main info)
+      // Name (main info)
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
       doc.text(pick.name, margin + 40, yPosition);
       
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Team: ${pick.team}`, margin + 40, yPosition + 8);
-      
-      // Strategy
+      // Motto
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('Strategy:', margin + 40, yPosition + 18);
-      doc.setFont('helvetica', 'normal');
-      doc.text(pick.strategy, margin + 70, yPosition + 18);
-      
-      // Motto
-      doc.setFont('helvetica', 'bold');
-      doc.text('Motto:', margin + 40, yPosition + 26);
+      doc.text('Motto:', margin + 40, yPosition + 12);
       doc.setFont('helvetica', 'italic');
       const motto = `"${pick.motto}"`;
       const wrappedMotto = doc.splitTextToSize(motto, pageWidth - margin - 80);
-      doc.text(wrappedMotto, margin + 70, yPosition + 26);
+      doc.text(wrappedMotto, margin + 70, yPosition + 12);
       
       // Prediction
       const mottoHeight = Array.isArray(wrappedMotto) ? wrappedMotto.length * 4 : 4;
       doc.setFont('helvetica', 'bold');
-      doc.text('Prediction:', margin + 40, yPosition + 34 + mottoHeight);
+      doc.text('Prediction:', margin + 40, yPosition + 20 + mottoHeight);
       doc.setFont('helvetica', 'italic');
       const prediction = `"${pick.prediction}"`;
       const wrappedPrediction = doc.splitTextToSize(prediction, pageWidth - margin - 80);
-      doc.text(wrappedPrediction, margin + 70, yPosition + 34 + mottoHeight);
+      doc.text(wrappedPrediction, margin + 70, yPosition + 20 + mottoHeight);
       
       // Separator line
       const predictionHeight = Array.isArray(wrappedPrediction) ? wrappedPrediction.length * 4 : 4;
@@ -399,7 +389,6 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="text-2xl font-bold text-white mb-1">{pick.name}</h3>
-                      <p className="text-lg text-slate-300 font-medium">{pick.team}</p>
                     </div>
                     {pick.position === 1 && (
                       <motion.div
@@ -413,17 +402,10 @@ export function ResultsPhase({ draftOrder, onRestart }: ResultsPhaseProps) {
                     )}
                   </div>
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white/5 rounded-lg p-3 border border-green-500/20">
-                      <div className="text-xs font-bold text-transparent bg-gradient-to-r from-green-300 to-green-500 bg-clip-text uppercase tracking-wide mb-1">🎯 STRATEGY</div>
-                      <div className="text-sm font-medium text-white">{pick.strategy}</div>
-                    </div>
-                    
-                    <div className="bg-white/5 rounded-lg p-3 md:col-span-2 border border-blue-500/20">
-                      <div className="text-xs font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text uppercase tracking-wide mb-1">💪 TEAM MOTTO</div>
-                      <div className="text-sm text-slate-300 italic font-medium">&quot;{pick.motto}&quot;</div>
-                    </div>
+                  {/* Motto */}
+                  <div className="bg-white/5 rounded-lg p-3 border border-blue-500/20">
+                    <div className="text-xs font-bold text-transparent bg-gradient-to-r from-blue-300 to-blue-500 bg-clip-text uppercase tracking-wide mb-1">💪 TEAM MOTTO</div>
+                    <div className="text-sm text-slate-300 italic font-medium">&quot;{pick.motto}&quot;</div>
                   </div>
 
                   {/* Prediction */}

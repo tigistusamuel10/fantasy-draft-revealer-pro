@@ -1,9 +1,7 @@
 export interface Member {
   id: string;
   name: string;
-  team: string;
   motto: string;
-  strategy: DraftStrategy;
   prediction: string;
 }
 
