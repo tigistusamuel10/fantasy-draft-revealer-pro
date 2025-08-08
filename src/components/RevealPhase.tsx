@@ -29,7 +29,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
   const headerRef = useRef<HTMLDivElement>(null);
   
   // Get audio functions
-  const { playCountdownSound, playCardSelectSound, playCardRevealSound } = useAudio();
+  const { playCountdownSound, playCardRevealSound } = useAudio();
   
   // Memoize sorted draft order to prevent unnecessary re-calculations
   const sortedDraftOrder = useMemo(() => 

@@ -42,7 +42,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
 
   // Create enhanced Web Audio API sound effects
   const createCountdownSound = () => {
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const context = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const duration = 0.15;
     const sampleRate = context.sampleRate;
     const length = sampleRate * duration;
@@ -62,7 +62,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
   };
   
   const createCardSelectSound = () => {
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const context = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const duration = 0.2;
     const sampleRate = context.sampleRate;
     const length = sampleRate * duration;
@@ -84,7 +84,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
   };
   
   const createCardRevealSound = () => {
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const context = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const duration = 0.4;
     const sampleRate = context.sampleRate;
     const length = sampleRate * duration;
@@ -131,7 +131,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
   };
   
   const createButtonClickSound = () => {
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const context = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const duration = 0.08; // Very short - 80ms
     const sampleRate = context.sampleRate;
     const length = sampleRate * duration;
@@ -216,7 +216,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
       
       buttonClickAudioRef.current = new Audio(createButtonClickSound());
       buttonClickAudioRef.current.volume = soundFXVolume;
-    } catch (error) {
+    } catch {
       console.log('Web Audio API not supported, falling back to simple sounds');
       // Fallback to simple beep sounds if Web Audio API fails
       const simpleBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMeAz6R1+3MeSsFJHfH79yQQAoUXrTp66hVFApGn+DyvmMeAz6R1+3MeSs=';
