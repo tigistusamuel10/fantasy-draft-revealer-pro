@@ -636,9 +636,9 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
       {/* Dynamic spacer to prevent content from being hidden behind fixed header */}
       <div style={{ height: `${headerHeight}px` }} />
 
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Draft Cards Grid - Show in reverse order (highest pick to lowest) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-7xl">
+        {/* Draft Cards Grid - Responsive layout for all screen sizes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {sortedDraftOrder.map((pick, index) => {
             // Create a stable key that only changes when draft order changes (not on every reveal)
             const cardKey = `${pick.id}-${pick.position}`;
@@ -838,7 +838,7 @@ interface DraftCardProps {
 function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps) {
   return (
     <motion.div 
-      className="relative h-84 perspective-1000"
+      className="relative h-72 sm:h-80 lg:h-84 perspective-1000"
       animate={isCurrentlyRevealing ? { 
         scale: [1, 1.05, 1],
       } : {}}
@@ -906,9 +906,9 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
             />
           ))}
           
-          <div className="relative z-10 text-center p-6 w-full h-full flex flex-col justify-center">
+          <div className="relative z-10 text-center p-3 sm:p-4 lg:p-6 w-full h-full flex flex-col justify-center">
             <motion.div 
-              className="text-5xl mb-4"
+              className="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4"
               animate={{
                 rotateY: [0, 15, -15, 0],
                 scale: [1, 1.1, 1]
@@ -919,7 +919,7 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
             </motion.div>
             
             <motion.div 
-              className="relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-4 py-3 rounded-xl mb-4 mx-auto shadow-2xl"
+              className="relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 sm:px-4 py-2 sm:py-3 rounded-xl mb-3 sm:mb-4 mx-auto shadow-2xl"
               animate={{
                 boxShadow: [
                   '0 8px 25px rgba(255,193,7,0.3)',
@@ -932,12 +932,12 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
               <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-xl blur-sm opacity-50" />
               <div className="relative z-10">
                 <div className="text-xs font-black uppercase tracking-widest">PICK</div>
-                <div className="text-xl font-black">#{pick.position}</div>
+                <div className="text-lg sm:text-xl font-black">#{pick.position}</div>
               </div>
             </motion.div>
             
             <motion.div 
-              className="text-sm text-slate-300 uppercase tracking-widest font-bold"
+              className="text-xs sm:text-sm text-slate-300 uppercase tracking-widest font-bold"
               animate={{
                 opacity: [0.7, 1, 0.7],
                 color: ['rgb(203, 213, 225)', 'rgb(251, 191, 36)', 'rgb(203, 213, 225)']
@@ -1102,12 +1102,12 @@ function StandardHeader({
   onStartReveal
 }: StandardHeaderProps) {
   return (
-    <div className="py-6 min-h-[200px] flex flex-col">
+    <div className="py-2 sm:py-4 min-h-[120px] sm:min-h-[140px] flex flex-col">
       <div className="max-w-6xl mx-auto flex-1">
           {/* Modern Title Card */}
-          <div className="mb-6">
+          <div className="mb-3 sm:mb-4">
             <motion.div 
-              className="relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl"
+              className="relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-2xl"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -1127,20 +1127,20 @@ function StandardHeader({
               />
               
               <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
+                <div className="flex flex-col lg:flex-row items-start justify-between gap-2 sm:gap-4">
                   {/* Left: Enhanced Title */}
-                  <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-1">
                     <motion.div 
                       animate={{ rotate: [0, 360] }}
                       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="p-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-xl"
+                      className="p-1.5 sm:p-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg sm:rounded-xl shadow-xl"
                     >
-                      <TrophyIcon className="h-6 w-6 text-black" />
+                      <TrophyIcon className="h-4 w-4 sm:h-6 sm:w-6 text-black" />
                     </motion.div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-0.5 sm:space-y-1">
                       <motion.h1
-                        className="text-2xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-yellow-200 to-slate-100 tracking-wide"
+                        className="text-base sm:text-xl lg:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-yellow-200 to-slate-100 tracking-wide"
                         animate={{
                           backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                           textShadow: [
@@ -1193,7 +1193,7 @@ function StandardHeader({
                         ))}
                         
                         <motion.span
-                          className="text-sm md:text-base font-semibold tracking-wider uppercase"
+                          className="text-xs sm:text-sm font-semibold tracking-wider uppercase"
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.6, delay: 0.8 }}
@@ -1221,10 +1221,10 @@ function StandardHeader({
                   </div>
 
                   {/* Right: Live Banner + Remaining Players Tracker */}
-                  <div className="flex flex-col lg:flex-row items-end gap-4">
+                  <div className="flex flex-col lg:flex-row items-end gap-2 sm:gap-3">
                     {/* Live Banner */}
                     <motion.div 
-                      className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white px-4 py-2 rounded-full shadow-lg"
+                      className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white px-3 py-1.5 rounded-full shadow-lg"
                       animate={{
                         boxShadow: [
                           "0 4px 20px rgba(239, 68, 68, 0.3)",
@@ -1240,7 +1240,7 @@ function StandardHeader({
                           animate={{ opacity: [1, 0.3, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         />
-                        <span className="text-sm font-bold tracking-wide">LIVE DRAFT COVERAGE</span>
+                        <span className="text-xs sm:text-sm font-bold tracking-wide">LIVE DRAFT COVERAGE</span>
                         <motion.div 
                           className="w-2 h-2 bg-white rounded-full"
                           animate={{ opacity: [1, 0.3, 1] }}
@@ -1257,10 +1257,10 @@ function StandardHeader({
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ duration: 0.4 }}
-                          className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-orange-400/30 rounded-lg p-3 shadow-lg min-w-[200px]"
+                          className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-orange-400/30 rounded-lg p-2 sm:p-3 shadow-lg min-w-[160px] sm:min-w-[200px]"
                         >
                           {/* Compact Header */}
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2">
                             <span className="text-orange-400 text-sm">👥</span>
                             <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">Remaining</span>
                             <div className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-bold">
@@ -1269,7 +1269,7 @@ function StandardHeader({
                           </div>
                           
                           {/* Vertical scrollable list - Show ALL names */}
-                          <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                          <div className="max-h-24 sm:max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                             <div className="space-y-1">
                               {remainingPlayers.map((name, index) => (
                                 <motion.div
@@ -1321,7 +1321,7 @@ function StandardHeader({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="border-t border-yellow-500/20 pt-6"
+                className="border-t border-yellow-500/20 pt-3 sm:pt-4"
               >
                 <div className="text-center">
                   <motion.div
@@ -1332,14 +1332,14 @@ function StandardHeader({
                       onClick={onStartReveal}
                       size="xl"
                       variant="primary"
-                      className="text-xl font-bold px-10 py-4 relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600"
+                      className="text-lg sm:text-xl font-bold px-6 sm:px-10 py-3 sm:py-4 relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600"
                     >
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
                       />
-                      <span className="relative z-10 flex items-center gap-3">
+                      <span className="relative z-10 flex items-center gap-2 sm:gap-3">
                         🏈 START THE DRAFT! 🏈
-                        <ChevronDownIcon className="h-5 w-5 animate-bounce" />
+                        <ChevronDownIcon className="h-4 w-4 sm:h-5 sm:w-5 animate-bounce" />
                       </span>
                     </Button>
                   </motion.div>
@@ -1356,18 +1356,18 @@ function StandardHeader({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="border-t border-yellow-500/20 pt-6 mt-4"
+                className="border-t border-yellow-500/20 pt-3 sm:pt-4 mt-2 sm:mt-3"
               >
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4">
                   {/* Left: Current Pick Info */}
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                       <div className="text-center">
-                        <div className="text-white font-black text-xl">
+                        <div className="text-white font-black text-lg sm:text-xl">
                           PICK #{pickNumber}
                         </div>
-                        <div className="text-yellow-400 text-sm font-semibold uppercase tracking-wider">
+                        <div className="text-yellow-400 text-xs sm:text-sm font-semibold uppercase tracking-wider">
                           {isRevealed ? "DRAFTED" : "ON THE CLOCK"}
                         </div>
                       </div>
@@ -1375,21 +1375,21 @@ function StandardHeader({
                     </div>
 
                     {/* Mystery/Status Message */}
-                    <div className="hidden sm:block">
+                    <div className="hidden md:block">
                       {!isRevealed ? (
                         <div className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 rounded-xl px-4 py-2 border border-yellow-500/30">
-                          <div className="text-yellow-400 font-bold text-sm">🤔 WHO WILL IT BE?</div>
+                          <div className="text-yellow-400 font-bold text-xs sm:text-sm">🤔 WHO WILL IT BE?</div>
                         </div>
                       ) : (
                         <div className="bg-gradient-to-r from-green-600/20 to-blue-600/20 rounded-xl px-4 py-2 border border-green-500/30">
-                          <div className="text-green-400 font-bold text-sm">✅ PICK REVEALED!</div>
+                          <div className="text-green-400 font-bold text-xs sm:text-sm">✅ PICK REVEALED!</div>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Right: Action Buttons */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     {!isRevealed && (
                       <motion.div
                         whileHover={{ scale: 1.05 }}
@@ -1399,10 +1399,10 @@ function StandardHeader({
                           onClick={onReveal}
                           size="lg"
                           variant="primary"
-                          className="text-lg font-black px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 shadow-xl border border-green-400/30"
+                          className="text-sm sm:text-lg font-black px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 shadow-xl border border-green-400/30"
                         >
                           🏈 MAKE THE PICK!
-                          <span className="ml-2 text-xs opacity-75">(Space)</span>
+                          <span className="ml-1 sm:ml-2 text-xs opacity-75">(Space)</span>
                         </Button>
                       </motion.div>
                     )}
@@ -1416,10 +1416,10 @@ function StandardHeader({
                           onClick={onNext}
                           size="lg"
                           variant="primary"
-                          className="text-lg font-black px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-xl border border-blue-400/30"
+                          className="text-sm sm:text-lg font-black px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-xl border border-blue-400/30"
                         >
                           ➡️ NEXT PICK
-                          <span className="ml-2 text-xs opacity-75">(Space/N)</span>
+                          <span className="ml-1 sm:ml-2 text-xs opacity-75">(Space/N)</span>
                         </Button>
                       </motion.div>
                     )}
@@ -1432,17 +1432,17 @@ function StandardHeader({
                         onClick={onReset}
                         size="md"
                         variant="secondary"
-                        className="text-sm font-bold px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-500/30"
+                        className="text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-700 hover:bg-slate-600 border border-slate-500/30"
                       >
                         🔄 RESET
-                        <span className="ml-2 text-xs opacity-75">(R)</span>
+                        <span className="ml-1 sm:ml-2 text-xs opacity-75">(R)</span>
                       </Button>
                     </motion.div>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="mt-6">
+                <div className="mt-3 sm:mt-4">
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                     <span className="font-semibold">DRAFT PROGRESS</span>
                     <span>{currentRevealIndex + 1} / {totalPicks} PICKS REVEALED</span>
