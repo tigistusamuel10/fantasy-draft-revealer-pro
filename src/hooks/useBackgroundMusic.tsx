@@ -194,12 +194,12 @@ export function AudioProvider({ children }: AudioProviderProps) {
 
   useEffect(() => {
     // Initialize lobby music
-    lobbyAudioRef.current = new Audio('/audio/lobbyNflSong.mp3');
+    lobbyAudioRef.current = new Audio('/audio/lobbyNflSong-v2.mp3');
     lobbyAudioRef.current.loop = true;
     lobbyAudioRef.current.volume = musicVolume;
 
     // Initialize NFL theme music
-    nflAudioRef.current = new Audio('/audio/nfl-theme.mp3');
+    nflAudioRef.current = new Audio('/audio/nfl-theme-v2.mp3');
     nflAudioRef.current.loop = true;
     nflAudioRef.current.volume = musicVolume;
 

@@ -7,6 +7,30 @@ import { Button } from './ui/Button';
 import { DraftOrder } from '@/types';
 import { useAudio } from '@/hooks/useBackgroundMusic';
 
+// Custom hook for intersection observer
+function useIntersectionObserver(ref: React.RefObject<Element | null>, options: IntersectionObserverInit = {}) {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsIntersecting(entry.isIntersecting);
+    }, {
+      // Default rootMargin to account for header
+      rootMargin: '-120px 0px 0px 0px',
+      threshold: 0.1,
+      ...options
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, options]);
+
+  return isIntersecting;
+}
+
 interface RevealPhaseProps {
   draftOrder: DraftOrder[];
   setDraftOrder: (order: DraftOrder[]) => void;
@@ -69,8 +93,19 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
 
   const startReveal = () => {
     setCurrentRevealIndex(0);
-    // Scroll to first card after state change
-    setTimeout(() => scrollToCard(0), 200);
+    // Force header height recalculation for Safari before scrolling
+    setTimeout(() => {
+      // Additional header height calculation specifically for Safari timing
+      if (headerRef.current) {
+        const rect = headerRef.current.getBoundingClientRect();
+        const freshHeight = rect.height + 10;
+        if (freshHeight !== headerHeight) {
+          setHeaderHeight(freshHeight);
+        }
+      }
+      // Scroll to first card after state change and header height update - increased delay for Safari
+      setTimeout(() => scrollToCard(0), 200);
+    }, 300);
   };
 
   // Memoized scroll function to prevent recreation on every render
@@ -185,27 +220,44 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
           
           // Wait for scroll to complete before revealing
           setTimeout(() => {
-            // Perform the reveal after scrolling
-            setScreenShake(true);
-            setTimeout(() => setScreenShake(false), 600);
-            
-            // Play the card reveal sound
-            playCardRevealSound();
-            
-            const newDraftOrder = draftOrder.map((p) => 
-              p.id === currentPick.id ? { ...p, revealed: true } : p
-            );
-            setDraftOrder(newDraftOrder);
-            
-            // Check if this was the #1 pick for EPIC celebration
+            // Check if this is the #1 pick for EPIC celebration FIRST
             if (currentPick.position === 1) {
+              // Start the epic celebration immediately
               setShowFireworks(true);
               setShowEpicCelebration(true);
               
+              // Wait for celebration to complete, THEN flip card
               setTimeout(() => {
-                setShowFireworks(false);
-                setShowEpicCelebration(false);
-              }, 5000); // Longer celebration for #1 pick
+                // Now perform the card reveal after celebration
+                setScreenShake(true);
+                setTimeout(() => setScreenShake(false), 600);
+                
+                // Play the card reveal sound
+                playCardRevealSound();
+                
+                const newDraftOrder = draftOrder.map((p) => 
+                  p.id === currentPick.id ? { ...p, revealed: true } : p
+                );
+                setDraftOrder(newDraftOrder);
+                
+                // End celebration after card flips
+                setTimeout(() => {
+                  setShowFireworks(false);
+                  setShowEpicCelebration(false);
+                }, 1000); // Give time to see the flipped card
+              }, 6000); // Wait for full celebration
+            } else {
+              // Regular reveal for other picks (immediate)
+              setScreenShake(true);
+              setTimeout(() => setScreenShake(false), 600);
+              
+              // Play the card reveal sound
+              playCardRevealSound();
+              
+              const newDraftOrder = draftOrder.map((p) => 
+                p.id === currentPick.id ? { ...p, revealed: true } : p
+              );
+              setDraftOrder(newDraftOrder);
             }
           }, 800);
         }
@@ -225,13 +277,26 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
       
       // Check if this was the #1 pick for EPIC celebration  
       if (currentPick.position === 1) {
+        // Start the epic celebration immediately
         setShowFireworks(true);
         setShowEpicCelebration(true);
         
+        // Wait for celebration to complete, THEN flip card
         setTimeout(() => {
-          setShowFireworks(false);
-          setShowEpicCelebration(false);
-        }, 5000); // Longer celebration for #1 pick
+          // Play the card reveal sound
+          playCardRevealSound();
+          
+          const newDraftOrder = draftOrder.map((p) => 
+            p.id === currentPick.id ? { ...p, revealed: true } : p
+          );
+          setDraftOrder(newDraftOrder);
+          
+          // End celebration after card flips
+          setTimeout(() => {
+            setShowFireworks(false);
+            setShowEpicCelebration(false);
+          }, 1000); // Give time to see the flipped card
+        }, 6000); // Wait for full celebration
       }
     }
   }, [currentRevealIndex, sortedDraftOrder, draftOrder, setDraftOrder, scrollToCard, playCountdownSound, playCardRevealSound]);
@@ -359,6 +424,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
             isRevealed={currentRevealIndex >= 0 ? sortedDraftOrder[currentRevealIndex]?.revealed || false : false}
             pickNumber={currentRevealIndex >= 0 ? sortedDraftOrder[currentRevealIndex]?.position || 0 : 0}
             remainingPlayers={sortedDraftOrder.filter(pick => !pick.revealed).map(pick => pick.name).sort()}
+            sortedDraftOrder={sortedDraftOrder}
             onReveal={revealCurrentCard}
             onNext={nextReveal}
             onReset={resetReveal}
@@ -374,23 +440,45 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
         {(isCountingDown || showDramaText) && (
           <motion.div
             className="fixed inset-0 z-[70] pointer-events-none"
+            style={{
+              transform: 'translate3d(0,0,0)', // Force hardware acceleration
+              WebkitTransform: 'translate3d(0,0,0)',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              width: '100vw',
+              height: '100vh',
+              WebkitPerspective: 1000, // Safari-specific perspective
+              perspective: 1000
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }} // Simplified transition
           >
-            {/* Background overlay - darker for better contrast */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            {/* Simplified background overlay for Safari performance */}
+            <div className="absolute inset-0 bg-black/95" style={{
+              transform: 'translate3d(0,0,0)', // Force hardware acceleration
+              WebkitTransform: 'translate3d(0,0,0)'
+            }} />
             
             {/* Centered container */}
-            <div className="flex items-center justify-center min-h-screen p-4">
-              {/* Countdown Card */}
+            <div className="flex items-center justify-center min-h-screen p-4" style={{
+              transform: 'translate3d(0,0,0)', // Force hardware acceleration
+              WebkitTransform: 'translate3d(0,0,0)'
+            }}>
+              {/* Simplified Countdown Card for Safari */}
               <motion.div
-                className="relative bg-gradient-to-br from-slate-800/98 via-slate-900/98 to-black/98 backdrop-blur-3xl border-3 border-yellow-500/40 rounded-3xl p-12 shadow-2xl max-w-3xl w-full mx-4"
-                initial={{ scale: 0.3, rotateY: -90, opacity: 0, y: 50 }}
-                animate={{ scale: 1, rotateY: 0, opacity: 1, y: 0 }}
-                exit={{ scale: 0.3, rotateY: 90, opacity: 0, y: -50 }}
-                transition={{ duration: 0.8, type: "spring", bounce: 0.3 }}
+                className="relative bg-slate-900/95 border-2 border-yellow-500/60 rounded-3xl p-12 shadow-xl max-w-3xl w-full mx-4"
+                style={{
+                  transform: 'translate3d(0,0,0)', // Force hardware acceleration
+                  WebkitTransform: 'translate3d(0,0,0)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden'
+                }}
+                initial={{ scale: 0.5, opacity: 0, y: 30 }} // Simplified initial state
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.5, opacity: 0, y: -30 }} // Simplified exit state
+                transition={{ duration: 0.6, ease: "easeOut" }} // Simplified transition
               >
               {/* Animated border glow */}
               <div className="absolute inset-0 rounded-3xl border-2 border-yellow-400 opacity-60 animate-pulse" />
@@ -473,109 +561,185 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Background overlay with pulsing colors */}
+            {/* Dynamic Stadium Lights Background */}
             <motion.div 
               className="absolute inset-0"
               animate={{
-                backgroundColor: [
-                  'rgba(0,0,0,0.8)',
-                  'rgba(255,215,0,0.1)',
-                  'rgba(255,69,0,0.1)',
-                  'rgba(0,255,0,0.1)',
-                  'rgba(0,0,0,0.8)'
+                background: [
+                  'radial-gradient(circle at 20% 30%, rgba(255,215,0,0.3) 0%, rgba(0,0,0,0.9) 50%)',
+                  'radial-gradient(circle at 80% 30%, rgba(255,69,0,0.3) 0%, rgba(0,0,0,0.9) 50%)',
+                  'radial-gradient(circle at 50% 70%, rgba(34,139,34,0.3) 0%, rgba(0,0,0,0.9) 50%)',
+                  'radial-gradient(circle at 30% 50%, rgba(255,215,0,0.3) 0%, rgba(0,0,0,0.9) 50%)'
                 ]
               }}
               transition={{
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
                 ease: 'easeInOut'
               }}
             />
             
-            {/* Fullscreen fireworks burst */}
+            {/* Football Field Lines Animation */}
             <div className="absolute inset-0 overflow-hidden">
-              {[...Array(30)].map((_, i) => (
+              {[...Array(8)].map((_, i) => (
                 <motion.div
-                  key={`epic-${i}`}
-                  className="absolute w-4 h-4 rounded-full"
+                  key={`field-line-${i}`}
+                  className="absolute w-full h-1 bg-white/30"
                   style={{
-                    left: '50%',
-                    top: '50%',
-                    background: `hsl(${(i * 12) % 360}, 100%, ${50 + Math.random() * 30}%)`,
-                    boxShadow: '0 0 15px currentColor'
+                    top: `${10 + i * 10}%`,
+                    left: '-100%'
                   }}
                   animate={{
-                    x: [0, (Math.cos(i * Math.PI / 15) * (200 + Math.random() * 300))],
-                    y: [0, (Math.sin(i * Math.PI / 15) * (200 + Math.random() * 300))],
-                    opacity: [1, 0.8, 0.6, 0],
-                    scale: [0, 2, 1.5, 0],
+                    left: ['−100%', '100%'],
+                    opacity: [0, 0.8, 0]
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 2,
                     repeat: Infinity,
-                    repeatDelay: 0.1,
-                    delay: (i * 0.05),
-                    ease: "easeOut"
+                    delay: i * 0.1,
+                    ease: 'easeInOut'
                   }}
                 />
               ))}
-              
-              {/* Confetti rain */}
-              {[...Array(50)].map((_, i) => (
+            </div>
+            
+            {/* Stadium Floodlight Beams */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(6)].map((_, i) => (
                 <motion.div
-                  key={`confetti-${i}`}
-                  className="absolute w-2 h-8 opacity-80"
+                  key={`light-beam-${i}`}
+                  className="absolute origin-top"
+                  style={{
+                    left: `${15 + i * 15}%`,
+                    top: '-10%',
+                    width: '2px',
+                    height: '120vh',
+                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,215,0,0.3) 50%, transparent 100%)',
+                    transform: `rotate(${-10 + i * 4}deg)`
+                  }}
+                  animate={{
+                    opacity: [0.2, 0.8, 0.2],
+                    scaleX: [0.5, 2, 0.5]
+                  }}
+                  transition={{
+                    duration: 3 + Math.random(),
+                    repeat: Infinity,
+                    delay: i * 0.3,
+                    ease: 'easeInOut'
+                  }}
+                />
+              ))}
+            </div>
+            
+            {/* Football Spiral Effects */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(12)].map((_, i) => (
+                <motion.div
+                  key={`football-${i}`}
+                  className="absolute text-4xl md:text-6xl"
                   style={{
                     left: `${Math.random() * 100}%`,
-                    top: '-10%',
-                    background: `linear-gradient(45deg, hsl(${Math.random() * 360}, 80%, 60%), hsl(${Math.random() * 360}, 80%, 60%))`,
-                    transform: `rotate(${Math.random() * 360}deg)`
+                    top: `${Math.random() * 100}%`,
+                    filter: 'drop-shadow(0 0 10px rgba(139, 69, 19, 0.8))'
+                  }}
+                  animate={{
+                    x: [0, Math.cos(i * Math.PI / 6) * 200],
+                    y: [0, Math.sin(i * Math.PI / 6) * 200],
+                    rotate: [0, 360 * 3],
+                    scale: [0.5, 1.5, 0.5],
+                    opacity: [0.8, 1, 0]
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                    ease: "easeOut"
+                  }}
+                >
+                  🏈
+                </motion.div>
+              ))}
+            </div>
+            
+            {/* Golden Championship Confetti */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(40)].map((_, i) => (
+                <motion.div
+                  key={`gold-confetti-${i}`}
+                  className="absolute rounded-sm"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: '-5%',
+                    width: Math.random() * 8 + 4 + 'px',
+                    height: Math.random() * 12 + 6 + 'px',
+                    background: `linear-gradient(45deg, 
+                      hsl(${45 + Math.random() * 15}, 90%, 65%), 
+                      hsl(${35 + Math.random() * 15}, 85%, 70%))`,
+                    boxShadow: '0 0 8px rgba(255,215,0,0.6)'
                   }}
                   animate={{
                     y: ['0vh', '120vh'],
-                    rotate: [0, 360 + Math.random() * 360],
-                    opacity: [0.8, 0.6, 0]
+                    rotate: [0, 360 * 2 + Math.random() * 360],
+                    x: [0, Math.sin(i) * 100],
+                    opacity: [1, 0.8, 0.1]
                   }}
                   transition={{
-                    duration: 4 + Math.random() * 3,
+                    duration: 5 + Math.random() * 3,
                     repeat: Infinity,
-                    delay: Math.random() * 5,
+                    delay: Math.random() * 4,
                     ease: 'linear'
                   }}
                 />
               ))}
             </div>
             
-            {/* Epic celebration text */}
+            {/* Exploding Trophy Burst */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {[...Array(20)].map((_, i) => (
+                <motion.div
+                  key={`trophy-burst-${i}`}
+                  className="absolute text-3xl md:text-5xl"
+                  style={{
+                    filter: 'drop-shadow(0 0 15px rgba(255,215,0,0.9))'
+                  }}
+                  animate={{
+                    x: [0, Math.cos(i * Math.PI / 10) * (150 + Math.random() * 200)],
+                    y: [0, Math.sin(i * Math.PI / 10) * (150 + Math.random() * 200)],
+                    rotate: [0, 360 + Math.random() * 360],
+                    scale: [0, 1.5, 1, 0.5],
+                    opacity: [1, 0.9, 0.7, 0]
+                  }}
+                  transition={{
+                    duration: 3.5,
+                    repeat: Infinity,
+                    delay: i * 0.1,
+                    ease: "easeOut"
+                  }}
+                >
+                  🏆
+                </motion.div>
+              ))}
+            </div>
+            
+            
+            {/* Main Championship Text */}
             <div className="flex items-center justify-center min-h-screen p-4">
               <motion.div
                 className="text-center"
                 initial={{ scale: 0, rotateY: -180 }}
                 animate={{ scale: 1, rotateY: 0 }}
-                transition={{ duration: 1, type: "spring", bounce: 0.4, delay: 0.5 }}
+                transition={{ duration: 1.2, type: "spring", bounce: 0.4, delay: 1 }}
               >
+                {/* Main Title with Stadium Glow */}
                 <motion.div
+                  className="relative mb-6"
                   animate={{
-                    scale: [1, 1.2, 1.1, 1.2, 1],
-                    rotateZ: [0, -5, 5, -3, 0]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <h1 className="text-6xl md:text-9xl font-black mb-6">
-                    <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 bg-clip-text text-transparent animate-pulse">
-                      🎉 #1 PICK! 🎉
-                    </span>
-                  </h1>
-                </motion.div>
-                
-                <motion.div
-                  animate={{
-                    opacity: [0.7, 1, 0.7],
-                    scale: [1, 1.05, 1]
+                    scale: [1, 1.05, 1],
+                    filter: [
+                      'drop-shadow(0 0 20px rgba(255,215,0,0.8))',
+                      'drop-shadow(0 0 40px rgba(255,215,0,1))',
+                      'drop-shadow(0 0 20px rgba(255,215,0,0.8))'
+                    ]
                   }}
                   transition={{
                     duration: 2,
@@ -583,42 +747,212 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
                     ease: "easeInOut"
                   }}
                 >
-                  <div className="text-2xl md:text-4xl font-bold text-white mb-4">
-                    🏆 FIRST OVERALL SELECTION! 🏆
+                  <h1 className="text-5xl md:text-7xl font-black mb-3">
+                    <span className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                      DRAFT
+                    </span>
+                  </h1>
+                  <h1 className="text-6xl md:text-8xl font-black">
+                    <span className="bg-gradient-to-r from-orange-400 via-red-500 to-yellow-400 bg-clip-text text-transparent">
+                      CHAMPION!
+                    </span>
+                  </h1>
+                </motion.div>
+                
+                {/* Champion Player Card - NEW */}
+                <motion.div
+                  className="relative mb-6"
+                  initial={{ y: 100, opacity: 0, scale: 0.5 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ duration: 1, delay: 1.8, type: "spring", bounce: 0.6 }}
+                >
+                  <motion.div
+                    className="bg-gradient-to-br from-yellow-400/90 via-orange-500/90 to-red-500/90 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border-4 border-yellow-300 max-w-lg mx-auto"
+                    animate={{
+                      boxShadow: [
+                        '0 20px 40px rgba(255,215,0,0.4)',
+                        '0 30px 60px rgba(255,215,0,0.6)',
+                        '0 20px 40px rgba(255,215,0,0.4)'
+                      ],
+                      scale: [1, 1.02, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    {/* Crown decoration */}
+                    <motion.div
+                      className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-6xl"
+                      animate={{
+                        rotate: [0, -10, 10, 0],
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      👑
+                    </motion.div>
+                    
+                    <div className="text-center relative z-10">
+                      <div className="text-black text-2xl md:text-3xl font-black uppercase tracking-wider mb-2">
+                        FIRST OVERALL PICK
+                      </div>
+                      
+                      {/* Player Name - BIG */}
+                      <motion.div
+                        className="text-4xl md:text-6xl font-black text-black mb-4"
+                        animate={{
+                          textShadow: [
+                            '2px 2px 0px rgba(0,0,0,0.3)',
+                            '4px 4px 0px rgba(0,0,0,0.4)',
+                            '2px 2px 0px rgba(0,0,0,0.3)'
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        {currentRevealIndex >= 0 && sortedDraftOrder[currentRevealIndex] ? 
+                          sortedDraftOrder[currentRevealIndex].name : 'CHAMPION'}
+                      </motion.div>
+                      
+                      {/* Player Motto/Battle Cry */}
+                      {currentRevealIndex >= 0 && sortedDraftOrder[currentRevealIndex]?.motto && (
+                        <motion.div
+                          className="bg-black/20 rounded-xl px-4 py-2 mb-4"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 2.5 }}
+                        >
+                          <div className="text-black text-lg md:text-xl font-bold italic">
+                            &ldquo;{sortedDraftOrder[currentRevealIndex].motto}&rdquo;
+                          </div>
+                        </motion.div>
+                      )}
+                      
+                      {/* Fantasy Elite Badge */}
+                      <motion.div
+                        className="inline-flex items-center gap-2 bg-black/30 rounded-full px-6 py-2 border-2 border-black/40"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                      >
+                        <span className="text-2xl">🏈</span>
+                        <span className="text-black font-black uppercase tracking-wider">Fantasy Legend</span>
+                        <span className="text-2xl">🏈</span>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+                
+                {/* Victory Stats */}
+                <motion.div
+                  className="bg-gradient-to-r from-black/80 via-yellow-900/60 to-black/80 backdrop-blur-lg rounded-2xl p-6 border-2 border-yellow-400/60 max-w-2xl mx-auto"
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 2.8 }}
+                >
+                  <div className="grid grid-cols-3 gap-6 text-center">
+                    <div>
+                      <motion.div 
+                        className="text-4xl md:text-5xl font-black text-yellow-400"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        #1
+                      </motion.div>
+                      <div className="text-white text-sm font-bold uppercase tracking-wider">Overall Pick</div>
+                    </div>
+                    <div>
+                      <motion.div 
+                        className="text-4xl md:text-5xl font-black text-orange-400"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                      >
+                        👑
+                      </motion.div>
+                      <div className="text-white text-sm font-bold uppercase tracking-wider">Draft Royalty</div>
+                    </div>
+                    <div>
+                      <motion.div 
+                        className="text-4xl md:text-5xl font-black text-green-400"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                      >
+                        🏆
+                      </motion.div>
+                      <div className="text-white text-sm font-bold uppercase tracking-wider">Legend Status</div>
+                    </div>
                   </div>
-                  <div className="text-xl md:text-2xl text-yellow-400 uppercase tracking-widest font-black">
-                    FANTASY LEGEND SECURED!
-                  </div>
+                  
+                  <motion.div
+                    className="mt-6 text-center"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <div className="text-yellow-300 text-lg md:text-xl font-bold uppercase tracking-widest">
+                      🎖️ FANTASY FOOTBALL ELITE 🎖️
+                    </div>
+                    <div className="text-white text-sm mt-2 italic">
+                      &ldquo;With the first pick in the fantasy draft...&rdquo;
+                    </div>
+                  </motion.div>
+                </motion.div>
+                
+                {/* Card Connection Animation - Appears at end */}
+                <motion.div
+                  className="mt-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 4.5, duration: 1 }}
+                >
+                  <motion.div
+                    className="flex items-center justify-center gap-4 text-yellow-400"
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      opacity: [0.7, 1, 0.7]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <div className="w-12 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
+                    <motion.div
+                      className="text-2xl"
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      🏈
+                    </motion.div>
+                    <div className="text-lg font-bold uppercase tracking-wider">Revealing Card</div>
+                    <motion.div
+                      className="text-2xl"
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      🏈
+                    </motion.div>
+                    <div className="w-12 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             </div>
             
-            {/* Floating trophy emojis */}
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={`trophy-${i}`}
-                className="absolute text-6xl"
-                style={{
-                  left: `${10 + Math.random() * 80}%`,
-                  top: `${10 + Math.random() * 80}%`,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  x: [0, Math.random() * 20 - 10, 0],
-                  rotate: [0, Math.random() * 30 - 15, 0],
-                  opacity: [0.6, 1, 0.6],
-                  scale: [1, 1.2, 1]
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 2,
-                  repeat: Infinity,
-                  delay: Math.random() * 3,
-                  ease: "easeInOut"
-                }}
-              >
-                {Math.random() > 0.5 ? '🏆' : '🎊'}
-              </motion.div>
-            ))}
+            {/* Victory Sound Waves */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={`sound-wave-${i}`}
+                  className="absolute border-2 border-yellow-400/30 rounded-full"
+                  style={{
+                    width: `${100 + i * 80}px`,
+                    height: `${100 + i * 80}px`
+                  }}
+                  animate={{
+                    scale: [0, 3],
+                    opacity: [0.8, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: i * 0.3,
+                    ease: 'easeOut'
+                  }}
+                />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -670,7 +1004,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
         <AnimatePresence>
           {allRevealed && (
             <motion.div 
-              className="text-center space-y-8 py-12"
+              className="draft-complete-section text-center space-y-8 py-12"
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -50, scale: 0.9 }}
@@ -761,7 +1095,7 @@ export function RevealPhase({ draftOrder, setDraftOrder, onShowResults, onRestar
                     className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl p-4 border border-blue-400/30 mb-6"
                   >
                     <div className="text-blue-300 text-sm md:text-base italic">
-                      &quot;The 2025 Fantasy Football Draft is now complete. May the best fantasy manager win!&quot;
+                      &ldquo;The 2025 Fantasy Football Draft is now complete. May the best fantasy manager win!&rdquo;
                     </div>
                     <div className="text-blue-400 text-xs mt-2 font-semibold">
                       - Your Fantasy Commissioner
@@ -836,8 +1170,15 @@ interface DraftCardProps {
 }
 
 function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isInView = useIntersectionObserver(cardRef, {
+    rootMargin: '-120px 0px 0px 0px', // Account for fixed header
+    threshold: 0.1
+  });
+  
   return (
     <motion.div 
+      ref={cardRef}
       className="relative h-72 sm:h-80 lg:h-84 perspective-1000"
       animate={isCurrentlyRevealing ? { 
         scale: [1, 1.05, 1],
@@ -920,6 +1261,13 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
             
             <motion.div 
               className="relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 sm:px-4 py-2 sm:py-3 rounded-xl mb-3 sm:mb-4 mx-auto shadow-2xl"
+              style={{
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                display: 'inline-block',
+                width: 'auto'
+              }}
               animate={{
                 boxShadow: [
                   '0 8px 25px rgba(255,193,7,0.3)',
@@ -929,8 +1277,8 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-xl blur-sm opacity-50" />
-              <div className="relative z-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-xl blur-sm opacity-50" style={{ transform: 'translateZ(0)' }} />
+              <div className="relative z-10" style={{ transform: 'translateZ(0)' }}>
                 <div className="text-xs font-black uppercase tracking-widest">PICK</div>
                 <div className="text-lg sm:text-xl font-black">#{pick.position}</div>
               </div>
@@ -971,8 +1319,11 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
         <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl overflow-hidden">
           {showFireworks && <FireworksEffect />}
           
-          {/* Modern gradient background matching app theme */}
-          <motion.div 
+          {/* Only render complex content if card is revealed AND in view */}
+          {pick.revealed && isInView ? (
+            <>
+              {/* Modern gradient background matching app theme */}
+              <motion.div
             className={`absolute inset-0 ${
               pick.position === 1 ? 'bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-red-500/20' :
               pick.position === 2 ? 'bg-gradient-to-br from-slate-400/20 via-slate-500/20 to-slate-600/20' :
@@ -1068,6 +1419,25 @@ function DraftCard({ pick, isCurrentlyRevealing, showFireworks }: DraftCardProps
               </motion.div>
             </div>
           </div>
+            </>
+          ) : pick.revealed ? (
+            // Simplified revealed card when not in view
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-800/95 via-slate-900/95 to-black/95 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black px-3 py-1.5 rounded-lg shadow-lg mb-2">
+                  <div className="text-xs font-black uppercase tracking-wider">PICK #{pick.position}</div>
+                </div>
+                <div className="text-lg font-black text-white mb-1">
+                  <span className="bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
+                    {pick.name}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                  Fantasy Manager
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </motion.div>
     </motion.div>
@@ -1082,6 +1452,7 @@ interface StandardHeaderProps {
   isRevealed: boolean;
   pickNumber: number;
   remainingPlayers: string[];
+  sortedDraftOrder: DraftOrder[];
   onReveal: () => void;
   onNext: () => void;
   onReset: () => void;
@@ -1096,6 +1467,7 @@ function StandardHeader({
   isRevealed,
   pickNumber,
   remainingPlayers,
+  sortedDraftOrder,
   onReveal,
   onNext,
   onReset,
@@ -1412,15 +1784,47 @@ function StandardHeader({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Button
-                          onClick={onNext}
-                          size="lg"
-                          variant="primary"
-                          className="text-sm sm:text-lg font-black px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-xl border border-blue-400/30"
-                        >
-                          ➡️ NEXT PICK
-                          <span className="ml-1 sm:ml-2 text-xs opacity-75">(Space/N)</span>
-                        </Button>
+                        {/* Check if this is the last pick - if so, show View Results button */}
+                        {currentRevealIndex >= sortedDraftOrder.length - 1 ? (
+                          <Button
+                            onClick={() => {
+                              // First trigger the completion flow
+                              onNext();
+                              // Then scroll to the draft complete section after a delay to let it render
+                              setTimeout(() => {
+                                const draftCompleteSection = document.querySelector('.draft-complete-section');
+                                if (draftCompleteSection) {
+                                  draftCompleteSection.scrollIntoView({ 
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                  });
+                                } else {
+                                  // Fallback: scroll to bottom of page
+                                  window.scrollTo({
+                                    top: document.documentElement.scrollHeight,
+                                    behavior: 'smooth'
+                                  });
+                                }
+                              }, 500); // Give time for the draft complete section to render
+                            }}
+                            size="lg"
+                            variant="primary"
+                            className="text-sm sm:text-lg font-black px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 shadow-xl border border-purple-400/30"
+                          >
+                            🏆 VIEW RESULTS
+                            <span className="ml-1 sm:ml-2 text-xs opacity-75">(Space)</span>
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={onNext}
+                            size="lg"
+                            variant="primary"
+                            className="text-sm sm:text-lg font-black px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-xl border border-blue-400/30"
+                          >
+                            ➡️ NEXT PICK
+                            <span className="ml-1 sm:ml-2 text-xs opacity-75">(Space/N)</span>
+                          </Button>
+                        )}
                       </motion.div>
                     )}
                     
